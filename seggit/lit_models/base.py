@@ -19,7 +19,10 @@ class BaseLitModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = self.optimizer(self.parameters(), lr=self.lr)
-        lr_scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=1e-2)
+        lr_scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            optimizer, 
+            max_lr=1e-2, 
+            total_steps=100)
         return {'optimizer': optimizer, 'lr_scheduler': lr_scheduler}
 
     def forward(self, x):
