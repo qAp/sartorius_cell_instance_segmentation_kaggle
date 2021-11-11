@@ -2,8 +2,10 @@
 # A solution to the Sartorius Cell Instance Segmentation Kaggle
 https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 
-# Notes on Deep Watershed Transform
+# Challenge to-do list
+- [ ] Get segmentation training going.
 
+# Notes on Deep Watershed Transform
 ## Instance level segmentation approaches
 ### Proposal based
 ### Deep structure models
