@@ -15,6 +15,7 @@ from seggit.data.util import generate_kfold
 DIR_IMG = f'{DIR_BASE}/train'
 DIR_MASK = '/kaggle/input/sardata_train_mask/train_mask'
 
+FOLD = 0
 BATCH_SIZE = 4
 NUM_WORKERS = 0
 
@@ -51,6 +52,7 @@ class CellClass(pl.LightningDataModule):
         super().__init__()
         self.args = vars(args) if args is not None else {}
 
+        self.fold = self.args.get('fold', FOLD)
         self.batch_size = self.args.get('batch_size', BATCH_SIZE)
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
         self.on_gpu = isinstance(self.args.get('gpus', None), (int, list))
@@ -74,8 +76,8 @@ class CellClass(pl.LightningDataModule):
 
     def setup(self):
         try:
-            train_df = pd.read_csv(f'{DIR_KFOLD}/train_fold{self.args.fold}.csv')
-            valid_df = pd.read_csv(f'{DIR_KFOLD}/valid_fold{self.args.fold}.csv')
+            train_df = pd.read_csv(f'{DIR_KFOLD}/train_fold{self.fold}.csv')
+            valid_df = pd.read_csv(f'{DIR_KFOLD}/valid_fold{self.fold}.csv')
         except FileNotFoundError:
             print(f'Make sure folds csv files are available at {DIR_KFOLD},\n'
                   f'or use {self.prepare_data} to generate these first.')
