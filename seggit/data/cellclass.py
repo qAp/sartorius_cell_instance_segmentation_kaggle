@@ -87,7 +87,7 @@ class CellClass(pl.LightningDataModule):
         self.train_ds = CellClassDataset(train_df, transform=self.transform)
         self.valid_ds = CellClassDataset(valid_df, transform=self.transform)
 
-    def training_dataloader(self):
+    def train_dataloader(self):
         return torch.utils.data.Dataloader(
             dataset=self.train_ds, 
             batch_size=self.batch_size,
@@ -96,7 +96,7 @@ class CellClass(pl.LightningDataModule):
             pin_memory=self.on_gpu
         )
 
-    def validation_dataloader(self):
+    def val_dataloader(self):
         return torch.utils.data.DataLoader(
             dataset=self.valid_ds,
             batch_size=self.batch_size,
