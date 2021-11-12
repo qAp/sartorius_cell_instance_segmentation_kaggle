@@ -70,7 +70,7 @@ class CellClass(pl.LightningDataModule):
                 'Generate them with `python seggit/data/generate_mask.py`.'
             )
 
-        if not os.path.exist(DIR_KFOLD):
+        if not os.path.exists(DIR_KFOLD):
             generate_kfold()
 
 
