@@ -29,8 +29,8 @@ def generate_kfold(dir_kfold='/kaggle/working/kfold'):
         train_indices_list.append(train_indices)
         valid_indices_list.append(valid_indices)
 
-    os.makedir(dir_kfold, exist_ok=True)
-    for i in range(n_split):
+    os.makedirs(dir_kfold, exist_ok=True)
+    for i in range(n_splits):
         train_df = df[train_indices_list[i]]
         valid_df = df[valid_indices_list[i]]
 
