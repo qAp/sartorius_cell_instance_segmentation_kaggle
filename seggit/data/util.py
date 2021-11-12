@@ -31,8 +31,8 @@ def generate_kfold(dir_kfold='/kaggle/working/kfold'):
 
     os.makedirs(dir_kfold, exist_ok=True)
     for i in range(n_splits):
-        train_df = df[train_indices_list[i]]
-        valid_df = df[valid_indices_list[i]]
+        train_df = df.loc[train_indices_list[i]]
+        valid_df = df.loc[valid_indices_list[i]]
 
         if i == 0:
             print('Train')
