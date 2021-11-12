@@ -88,7 +88,7 @@ class CellClass(pl.LightningDataModule):
         self.valid_ds = CellClassDataset(valid_df, transform=self.transform)
 
     def train_dataloader(self):
-        return torch.utils.data.Dataloader(
+        return torch.utils.data.DataLoader(
             dataset=self.train_ds, 
             batch_size=self.batch_size,
             shuffle=True,
