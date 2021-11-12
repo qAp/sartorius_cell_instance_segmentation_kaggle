@@ -10,7 +10,7 @@ from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 __all__ = ['DIR_BASE', 'DIR_KFOLD']
 
 DIR_BASE = '/kaggle/input/sartorius-cell-instance-segmentation/'
-DIR_KFOLD = '/kaggle/input/sardata_kfold/kfold'
+DIR_KFOLD = '/kaggle/input/sardata-kfold/kfold'
 
 
 def generate_kfold(dir_kfold='/kaggle/working/kfold'):

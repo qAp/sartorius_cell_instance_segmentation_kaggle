@@ -13,7 +13,7 @@ from seggit.data.util import generate_kfold
 
 
 DIR_IMG = f'{DIR_BASE}/train'
-DIR_MASK = '/kaggle/input/sardata_train_mask/train_mask'
+DIR_MASK = '/kaggle/input/sardata-train-mask/train_mask'
 
 FOLD = 0
 BATCH_SIZE = 4
