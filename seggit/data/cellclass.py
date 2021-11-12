@@ -42,7 +42,8 @@ class CellClassDataset(torch.utils.data.Dataset):
             img = transformed['image']
             mask = transformed['mask']
 
-        img = img / 255
+        img = (img / 255)[[0], ...]
+        mask = mask[..., 0].type(torch.float32)
         return img, mask
 
 
