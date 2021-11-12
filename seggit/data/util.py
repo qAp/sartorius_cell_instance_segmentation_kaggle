@@ -1,12 +1,50 @@
 
+
 import os, sys
 import multiprocessing
 import numpy as np
 import pandas as pd
 import cv2
+from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 
+__all__ = ['DIR_BASE', 'DIR_KFOLD']
 
 DIR_BASE = '/kaggle/input/sartorius-cell-instance-segmentation/'
+DIR_KFOLD = '/kaggle/input/sardata_kfold/kfold'
+
+
+def generate_kfold(dir_kfold='/kaggle/working/kfold'):
+
+    df = pd.read_csv(f'{DIR_BASE}/train.csv')
+    X = df.values
+    y = df[['cell_type', 'plate_time', 'sample_date', 'sample_id']].values
+
+    n_split = 5
+    kf = MultilabelStratifiedKFold(
+        n_split=n_split, shuffle=True, random_state=100)
+
+    train_indices_list = []
+    valid_indices_list = []
+    for train_indices, valid_indices in kf.split(X, y):
+        train_indices_list.append(train_indices)
+        valid_indices_list.append(valid_indices)
+
+    os.makedir(dir_kfold, exist_ok=True)
+    for i in range(n_split):
+        train_df = df[train_indices_list[i]]
+        valid_df = df[valid_indices_list[i]]
+
+        if i == 0:
+            print('Train')
+            print(train_df['cell_type'].value_counts())
+            print('Valid')
+            print(valid_df['cell_type'].value_count())
+
+        train_df.to_csv(f'{dir_kfold}/train_fold{i}.csv', index=False)
+        valid_df.to_csv(f'{dir_kfold}/valid_fold{i}.csv', index=False)
+
+    print(
+        f'Folds generated and saved in {dir_kfold}. Move them to {DIR_KFOLD}')
 
 
 def rle_decode(mask_rle, shape, color=1):
@@ -46,9 +84,4 @@ def _generate_mask(args):
 
     write_status = cv2.imwrite(f'{dir_mask}/{imgid}.png', mask)
     return imgid, write_status
-
-
-
-
-
 
