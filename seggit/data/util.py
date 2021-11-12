@@ -44,7 +44,7 @@ def _generate_mask(args):
 
     mask[mask > 1] = 0
 
-    write_status = cv2.imwrite(f'train_masks/{imgid}.png', mask)
+    write_status = cv2.imwrite(f'{dir_mask}/{imgid}.png', mask)
     return imgid, write_status
 
 
