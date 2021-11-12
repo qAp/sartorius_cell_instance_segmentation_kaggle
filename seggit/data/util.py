@@ -38,7 +38,7 @@ def generate_kfold(dir_kfold='/kaggle/working/kfold'):
             print('Train')
             print(train_df['cell_type'].value_counts())
             print('Valid')
-            print(valid_df['cell_type'].value_count())
+            print(valid_df['cell_type'].value_counts())
 
         train_df.to_csv(f'{dir_kfold}/train_fold{i}.csv', index=False)
         valid_df.to_csv(f'{dir_kfold}/valid_fold{i}.csv', index=False)
