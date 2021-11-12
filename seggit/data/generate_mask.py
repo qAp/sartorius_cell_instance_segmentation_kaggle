@@ -16,4 +16,5 @@ p = multiprocessing.Pool(processes=os.cpu_count())
 with tqdm(total=len(args_list)) as pbar:
     for imgid, write_status in p.map(_generate_mask, args_list):
         pbar.set_description(f'{imgid}. Write OK: {write_status}')
+        pbar.refresh()
 p.close()
