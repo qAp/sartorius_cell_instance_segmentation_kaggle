@@ -35,7 +35,7 @@ class CellClassDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         imgid = self.imgids[idx]
         img = cv2.imread(f'{DIR_IMG}/{imgid}.png')
-        mask = cv2.imread(f'{DIR_MASK}/{imgid}.png')[..., 0]
+        mask = cv2.imread(f'{DIR_MASK}/{imgid}.png')
 
         if self.transform:
             transformed = self.transform(image=img, mask=mask)
