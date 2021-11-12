@@ -3,6 +3,7 @@ import os, sys
 import multiprocessing
 import numpy as np
 import pandas as pd
+import cv2
 
 
 DIR_BASE = '/kaggle/input/sartorius-cell-instance-segmentation/'
