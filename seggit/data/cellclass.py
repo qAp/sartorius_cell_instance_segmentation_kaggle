@@ -62,7 +62,7 @@ class CellClass(pl.LightningDataModule):
         self.valid_ds: torch.utils.data.Dataset
 
     def prepare_data(self):
-        if not os.path.exist(DIR_MASK):
+        if not os.path.exists(DIR_MASK):
             print(
                 f'Masks are not available at {DIR_MASK}.  ' 
                 'Generate them with `python seggit/data/generate_mask.py`.'
