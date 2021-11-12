@@ -19,7 +19,7 @@ def generate_kfold(dir_kfold='/kaggle/working/kfold'):
     X = df.values
     y = df[['cell_type', 'plate_time', 'sample_date', 'sample_id']].values
 
-    n_splits = 3
+    n_splits = 5
     kf = MultilabelStratifiedKFold(
         n_splits=n_splits, shuffle=True, random_state=100)
 
