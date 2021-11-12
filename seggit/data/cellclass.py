@@ -57,7 +57,7 @@ class CellClass(pl.LightningDataModule):
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
         self.on_gpu = isinstance(self.args.get('gpus', None), (int, list))
 
-        tfms_default = [ToTensorV2]
+        tfms_default = [ToTensorV2()]
         self.transform = A.Compose(tfms_default)
 
         self.train_ds: torch.utils.data.Dataset
