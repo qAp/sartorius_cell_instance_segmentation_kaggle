@@ -30,8 +30,8 @@ def _setup_parser():
     args, _ = parser.parse_known_args()
     data_class = _import_class(f'seggit.data.{args.data_class}')
     lit_model_class = _import_class(f'seggit.lit_models.{args.lit_model_class}')
-    data_class.add_parse_args(parser)
-    lit_model_class.add_parse_args(parser)
+    data_class.add_argparse_args(parser)
+    lit_model_class.add_argparse_args(parser)
 
     parser.add_argument('--help', '-h', action='help')
     return parser
