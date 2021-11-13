@@ -69,7 +69,7 @@ class CellClass(pl.LightningDataModule):
         self.valid_ds: torch.utils.data.Dataset
 
     @staticmethod
-    def add_argparse_args(self, parser):
+    def add_argparse_args(parser):
         parser.add_argument('--fold', type=int, default=FOLD)
         parser.add_argument('--batch_size', type=int, default=BATCH_SIZE)
         parser.add_argument('--num_workers', type=int, default=NUM_WORKERS)

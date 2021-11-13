@@ -27,7 +27,7 @@ class BaseLitModel(pl.LightningModule):
         self.loss_fn = smp.losses.FocalLoss(mode='binary')
 
     @staticmethod
-    def add_argparse_args(self, parser):
+    def add_argparse_args(parser):
         parser.add_argument('--lr', type=float, default=LR)
         parser.add_argument('--optimizer', type=str, default=OPTIMIZER)
         parser.add_argument('--one_cycle_total_steps', type=int, 
