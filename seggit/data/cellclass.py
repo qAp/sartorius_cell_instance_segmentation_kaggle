@@ -4,6 +4,7 @@ import pandas as pd
 import torch
 import albumentations as A
 from albumentations.pytorch.transforms import ToTensorV2
+from albumentations.augmentations.crops.transforms import RandomCrop
 import pytorch_lightning as pl
 import cv2
 
@@ -58,7 +59,10 @@ class CellClass(pl.LightningDataModule):
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
         self.on_gpu = isinstance(self.args.get('gpus', None), (int, list))
 
-        tfms_default = [ToTensorV2()]
+        tfms_default = [
+            RandomCrop(height=480, width=480, always_apply=True),
+            ToTensorV2()
+            ]
         self.transform = A.Compose(tfms_default)
 
         self.train_ds: torch.utils.data.Dataset
