@@ -1,7 +1,12 @@
+
 import torch
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 
+
+LR = 1e-4
+OPTIMIZER = 'Adam'
+ONE_CYCLE_TOTAL_STEPS = 100
 
 
 class BaseLitModel(pl.LightningModule):
@@ -11,18 +16,33 @@ class BaseLitModel(pl.LightningModule):
 
         self.model = model
 
-        self.lr = 1e-3
-        self.optimizer = torch.optim.Adam
+        self.lr = self.args.get('lr', LR)
+        optimizer = self.args.get('optimizer', OPTIMIZER)
+        self.optimizer = getattr(torch.optim, optimizer)
+
+        self.one_cycle_max_lr = self.args.get('one_cycle_max_lr', None)
+        self.one_cycle_total_steps = self.args.get('one_cycle_total_steps', 
+                                                   ONE_CYCLE_TOTAL_STEPS)
 
         self.loss_fn = smp.losses.FocalLoss(mode='binary')
 
+    @staticmethod
+    def add_argparse_args(self, parser):
+        parser.add_argument('--lr', type=float, default=LR)
+        parser.add_argument('--optimizer', type=str, default=OPTIMIZER)
+        parser.add_argument('--one_cycle_total_steps', type=int, 
+                            default=ONE_CYCLE_TOTAL_STEPS)
 
     def configure_optimizers(self):
         optimizer = self.optimizer(self.parameters(), lr=self.lr)
+
+        if self.one_cycle_max_lr is None:
+            return optimizer
+
         lr_scheduler = torch.optim.lr_scheduler.OneCycleLR(
             optimizer, 
-            max_lr=1e-2, 
-            total_steps=100)
+            max_lr=self.one_cycle_max_lr, 
+            total_steps=self.one_cycle_total_steps)
         return {'optimizer': optimizer, 'lr_scheduler': lr_scheduler}
 
     def forward(self, x):
@@ -37,7 +57,6 @@ class BaseLitModel(pl.LightningModule):
                  on_step=True, on_epoch=True, prog_bar=True)
         
         return loss
-
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
