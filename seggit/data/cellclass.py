@@ -68,6 +68,12 @@ class CellClass(pl.LightningDataModule):
         self.train_ds: torch.utils.data.Dataset
         self.valid_ds: torch.utils.data.Dataset
 
+    @staticmethod
+    def add_argparse_args(self, parser):
+        parser.add_argument('--fold', type=int, default=FOLD)
+        parser.add_argument('--batch_size', type=int, default=BATCH_SIZE)
+        parser.add_argument('--num_workers', type=int, default=NUM_WORKERS)
+
     def prepare_data(self):
         if not os.path.exists(DIR_MASK):
             print(

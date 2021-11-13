@@ -27,6 +27,12 @@ def _setup_parser():
     parser.add_argument('--dir_out', type=str, default='training/logs')
     parser.add_argument('--wandb', action='store_true', default=False)
 
+    args, _ = parser.parse_known_args()
+    data_class = _import_class(args.data_class)
+    lit_model_class = _import_class(args.lit_model_class)
+    data_class.add_parse_args(parser)
+    lit_model_class.add_parse_args(parser)
+
     parser.add_argument('--help', '-h', action='help')
     return parser
 
