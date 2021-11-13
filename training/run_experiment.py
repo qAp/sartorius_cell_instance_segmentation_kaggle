@@ -64,7 +64,8 @@ def main():
     model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
         filename=f'fold{args.fold:d}-' + '{epoch:03d}-{val_loss:.3f}',
         monitor='val_loss',
-        mode='min')
+        mode='min', 
+        save_last=True)
 
     callbacks = [early_stopping_callback,
                 model_checkpoint_callback]
