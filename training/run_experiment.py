@@ -85,3 +85,5 @@ def main():
             print('Best model also uploaded to W&B.')
 
 
+if __name__ == '__main__':
+    main()
