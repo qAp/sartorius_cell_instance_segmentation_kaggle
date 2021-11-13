@@ -19,7 +19,6 @@ def _setup_parser():
     trainer_parser._action_groups[1].title = 'Trainer Args'
     parser = argparse.ArgumentParser(add_help=False, parents=[trainer_parser])
 
-    parser.add_argument('--fold', type=int, default=0)
     parser.add_argument('--data_class', type=str, default='CellClass')
     parser.add_argument('--model_class', type=str, default='Unet')
     parser.add_argument('--encoder_name', type=str, default='resnet34')
