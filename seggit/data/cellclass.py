@@ -17,6 +17,7 @@ DIR_IMG = f'{DIR_BASE}/train'
 DIR_MASK = '/kaggle/input/sardata-train-mask/train_mask'
 
 FOLD = 0
+IMAGE_SIZE = 480
 BATCH_SIZE = 4
 NUM_WORKERS = 0
 
@@ -55,12 +56,15 @@ class CellClass(pl.LightningDataModule):
         self.args = vars(args) if args is not None else {}
 
         self.fold = self.args.get('fold', FOLD)
+        self.image_size = self.args.get('image_size', IMAGE_SIZE)
         self.batch_size = self.args.get('batch_size', BATCH_SIZE)
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
         self.on_gpu = isinstance(self.args.get('gpus', None), (int, list))
 
         tfms_default = [
-            RandomCrop(height=480, width=480, always_apply=True),
+            RandomCrop(height=self.image_size, 
+                       width=self.image_size, 
+                       always_apply=True),
             ToTensorV2()
             ]
         self.transform = A.Compose(tfms_default)
@@ -71,6 +75,7 @@ class CellClass(pl.LightningDataModule):
     @staticmethod
     def add_argparse_args(parser):
         parser.add_argument('--fold', type=int, default=FOLD)
+        parser.add_argument('--image_size', type=int, default=IMAGE_SIZE)
         parser.add_argument('--batch_size', type=int, default=BATCH_SIZE)
         parser.add_argument('--num_workers', type=int, default=NUM_WORKERS)
 
