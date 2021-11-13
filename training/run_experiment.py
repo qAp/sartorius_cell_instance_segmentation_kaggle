@@ -1,7 +1,7 @@
 
 import importlib
 import argparse
-import albumentation
+import albumentations
 import pytorch_lightning as pl
 import wandb
 
