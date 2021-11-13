@@ -28,8 +28,8 @@ def _setup_parser():
     parser.add_argument('--wandb', action='store_true', default=False)
 
     args, _ = parser.parse_known_args()
-    data_class = _import_class(args.data_class)
-    lit_model_class = _import_class(args.lit_model_class)
+    data_class = _import_class(f'seggit.data.{args.data_class}')
+    lit_model_class = _import_class(f'seggit.lit_models.{args.lit_model_class}')
     data_class.add_parse_args(parser)
     lit_model_class.add_parse_args(parser)
 
@@ -43,7 +43,8 @@ def main():
 
     data_class = _import_class(f'seggit.data.{args.data_class}')
     model_class = _import_class(f'seggit.models.{args.model_class}')
-    lit_model_class = _import_class(f'seggit.lit_models.BaseLitModel')
+    lit_model_class = _import_class(
+        f'seggit.lit_models.{args.lit_model_class}')
 
     data = data_class(args)
     data.prepare_data()
