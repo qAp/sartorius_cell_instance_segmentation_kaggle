@@ -33,7 +33,7 @@ def _setup_parser():
 
 def main():
     parser = _setup_parser()
-    args = parser.parse_args([])
+    args = parser.parse_args()
 
     data_class = _import_class(f'seggit.data.{args.data_class}')
     model_class = _import_class(f'seggit.models.{args.model_class}')
