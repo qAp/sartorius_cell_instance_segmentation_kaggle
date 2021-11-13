@@ -73,7 +73,7 @@ def main():
                                             logger=logger,
                                             callbacks=callbacks,
                                             weights_summary='full',
-                                            weights_save_path=arg.dir_out)
+                                            weights_save_path=args.dir_out)
 
     trainer.tune(model=lit_model, datamodule=data)
     trainer.fit(model=lit_model, datamodule=data)
