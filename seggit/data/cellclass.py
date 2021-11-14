@@ -27,6 +27,7 @@ def _default_tfms():
 
 def _train_tfms(image_size):
     return [
+        albu.HorizontalFlip(p=0.5),
         albu.ShiftScaleRotate(shift_limit=0.2, 
                               scale_limit=0.3,
                               rotate_limit=180, 
