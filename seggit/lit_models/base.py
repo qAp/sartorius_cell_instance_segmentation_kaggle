@@ -25,6 +25,7 @@ class BaseLitModel(pl.LightningModule):
                                                    ONE_CYCLE_TOTAL_STEPS)
 
         self.loss_fn = smp.utils.losses.DiceLoss()
+        self.train_iou5 = smp.utils.metrics.IoU(threshold=0.5)
         self.val_iou3 = smp.utils.metrics.IoU(threshold=0.3)
         self.val_iou5 = smp.utils.metrics.IoU(threshold=0.5)
         self.val_iou7 = smp.utils.metrics.IoU(threshold=0.7)
@@ -56,8 +57,10 @@ class BaseLitModel(pl.LightningModule):
         x, y = batch
         y_pred = self(x)
         loss = self.loss_fn(y_pred, y)
+        train_iou5 = self.train_iou5(y_pred, y)
 
         self.log('train_loss', loss)
+        self.log('train_iou5', train_iou5, on_step=False, on_epoch=True)
         
         return loss
 
