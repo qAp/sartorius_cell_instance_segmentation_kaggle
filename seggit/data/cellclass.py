@@ -2,7 +2,7 @@
 import os
 import pandas as pd
 import torch
-import albumentations as A
+import albumentations as albu
 from albumentations.pytorch.transforms import ToTensorV2
 from albumentations.augmentations.crops.transforms import RandomCrop
 import pytorch_lightning as pl
@@ -21,6 +21,42 @@ IMAGE_SIZE = 480
 BATCH_SIZE = 4
 NUM_WORKERS = 0
 
+
+def _default_tfms():
+    return [albu.pytorch.transforms.ToTensorV2()]
+
+def _train_tfms(image_size):
+    return [
+        albu.ShiftScaleRotate(shift_limit=0.2, 
+                              scale_limit=0.3,
+                              rotate_limit=180, 
+                              p=1., 
+                              border_mode=0),
+        albu.PadIfNeeded(min_height=520, 
+                         min_width=520,
+                         always_apply=True, 
+                         border_mode=0),
+        albu.RandomCrop(height=image_size, 
+                        width=image_size, 
+                        always_apply=True),
+        albu.GaussNoise(p=1),
+        albu.Perspective(p=1),
+        albu.OneOf(
+            [
+                albu.CLAHE(p=1),
+                albu.RandomBrightnessContrast(p=1),
+                albu.RandomGamma(p=1)
+            ], 
+            p=0.9),
+        albu.OneOf(
+            [
+                albu.Sharpen(p=1),
+                albu.Blur(blur_limit=5, p=1),
+                albu.MotionBlur(blur_limit=5, p=1)
+            ],
+            p=0.9),
+        albu.HueSaturationValue(p=0.9)
+    ]
 
 class CellClassDataset(torch.utils.data.Dataset):
 
@@ -61,13 +97,10 @@ class CellClass(pl.LightningDataModule):
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
         self.on_gpu = isinstance(self.args.get('gpus', None), (int, list))
 
-        tfms_default = [
-            RandomCrop(height=self.image_size, 
-                       width=self.image_size, 
-                       always_apply=True),
-            ToTensorV2()
-            ]
-        self.transform = A.Compose(tfms_default)
+        self.transform = albu.Compose(
+            _train_tfms(image_size=self.image_size) + 
+            _default_tfms()
+            )
 
         self.train_ds: torch.utils.data.Dataset
         self.valid_ds: torch.utils.data.Dataset
