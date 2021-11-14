@@ -24,7 +24,10 @@ class BaseLitModel(pl.LightningModule):
         self.one_cycle_total_steps = self.args.get('one_cycle_total_steps', 
                                                    ONE_CYCLE_TOTAL_STEPS)
 
-        self.loss_fn = smp.losses.FocalLoss(mode='binary')
+        self.loss_fn = smp.utils.losses.DiceLoss()
+        self.val_iou3 = smp.utils.metrics.IoU(threshold=0.3)
+        self.val_iou5 = smp.utils.metrics.IoU(threshold=0.5)
+        self.val_iou7 = smp.utils.metrics.IoU(threshold=0.7)
 
     @staticmethod
     def add_argparse_args(parser):
@@ -63,5 +66,11 @@ class BaseLitModel(pl.LightningModule):
         y_pred = self(x)
         loss = self.loss_fn(y_pred, y)
 
-        self.log('val_loss', loss, 
-                 on_step=False, on_epoch=True, prog_bar=True)
+        iou3 = self.val_iou3(y_pred, y)
+        iou5 = self.val_iou5(y_pred, y)
+        iou7 = self.val_iou7(y_pred, y)
+
+        self.log('val_loss', loss, prog_bar=True)
+        self.log('val_iou3', iou3, on_step=False, on_epoch=True, prog_bar=True)
+        self.log('val_iou5', iou5, on_step=False, on_epoch=True, prog_bar=True)
+        self.log('val_iou7', iou7, on_step=False, on_epoch=True, prog_bar=True)
