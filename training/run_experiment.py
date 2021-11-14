@@ -64,13 +64,13 @@ def main():
 
     early_stopping_callback = pl.callbacks.EarlyStopping(
         monitor='val_iou5',
-        mode='min',
+        mode='max',
         patience=10)
 
     model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
         filename=f'fold{args.fold:d}-' + '{epoch:03d}-{val_loss:.3f}-{val_iou5:.3f}',
         monitor='val_iou5',
-        mode='min', 
+        mode='max', 
         save_last=True)
 
     callbacks = [early_stopping_callback,
