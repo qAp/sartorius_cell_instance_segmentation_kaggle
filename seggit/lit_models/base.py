@@ -56,8 +56,8 @@ class BaseLitModel(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
-        loss = self.loss_fn(y_pred, y)
-        train_iou5 = self.train_iou5(y_pred, y)
+        loss = self.loss_fn(y_pred.squeeze(1), y)
+        train_iou5 = self.train_iou5(y_pred.squeeze(1), y)
 
         self.log('train_loss', loss)
         self.log('train_iou5', train_iou5, on_step=False, on_epoch=True)
@@ -67,11 +67,11 @@ class BaseLitModel(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_pred = self(x)
-        loss = self.loss_fn(y_pred, y)
+        loss = self.loss_fn(y_pred.squeeze(1), y)
 
-        iou3 = self.val_iou3(y_pred, y)
-        iou5 = self.val_iou5(y_pred, y)
-        iou7 = self.val_iou7(y_pred, y)
+        iou3 = self.val_iou3(y_pred.squeeze(1), y)
+        iou5 = self.val_iou5(y_pred.squeeze(1), y)
+        iou7 = self.val_iou7(y_pred.squeeze(1), y)
 
         self.log('val_loss', loss, prog_bar=True)
         self.log('val_iou3', iou3, on_step=False, on_epoch=True, prog_bar=True)
