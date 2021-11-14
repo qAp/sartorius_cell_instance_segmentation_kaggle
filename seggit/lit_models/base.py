@@ -54,8 +54,7 @@ class BaseLitModel(pl.LightningModule):
         y_pred = self(x)
         loss = self.loss_fn(y_pred, y)
 
-        self.log('train_loss', loss, 
-                 on_step=True, on_epoch=True, prog_bar=True)
+        self.log('train_loss', loss)
         
         return loss
 
