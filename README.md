@@ -3,7 +3,11 @@
 https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 
 # Challenge to-do list
+- [ ] Use different image tranformations for validation.
+- [ ] Monitor validation loss, instead of validation metric, for callbacks.
+- [ ] Keep the channel dimension of mask through training like in segmentation_models_pytorch?
 - [ ] Get segmentation training going.
+
 
 # Notes on Deep Watershed Transform
 ## Instance level segmentation approaches
@@ -16,7 +20,7 @@ https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 
 
 # References
-- [[placeholder] my approach and results](https://www.kaggle.com/c/sartorius-cell-instance-segmentation/discussion/285516)
+- [@hengck23 [placeholder] my approach and results](https://www.kaggle.com/c/sartorius-cell-instance-segmentation/discussion/285516)
 - [Deep Watershed Transform for Instance Segmentation](https://arxiv.org/pdf/1611.08303.pdf)
 - [[ods.ai] topcoders, 1st place solution](https://www.kaggle.com/c/data-science-bowl-2018/discussion/54741)
 - https://github.com/MouseLand/cellpose
