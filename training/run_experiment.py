@@ -73,8 +73,8 @@ def main():
         mode='max', 
         save_last=True)
 
-    callbacks = [early_stopping_callback,
-                model_checkpoint_callback]
+    # callbacks = [early_stopping_callback,
+    callbacks = [model_checkpoint_callback]
 
     trainer = pl.Trainer.from_argparse_args(args,
                                             logger=logger,
