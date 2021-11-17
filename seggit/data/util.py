@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import cv2
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
-from seggit.data.config import DIR_BASE, DIR_MASK
+from seggit.data.config import DIR_BASE, DIR_MASK, DIR_DTFM
 
 
 
