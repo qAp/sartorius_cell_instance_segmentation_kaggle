@@ -106,6 +106,21 @@ def _generate_distance_transform(args):
 
     np.save(f'{dir_dtfm}/{imgid}', dtfm)
     return imgid
+
+
+def _generate_normalised_gradient(args):
+    '''
+    Generate normalised gradient of distance transform
+    '''
+    imgid, dir_uvec = args
+
+    dtfm = np.load(f'{DIR_DTFM}/{imgid}.npy')
+    grad_dtfm = np.stack(np.gradient(dtfm), axis=2)
+    norm = np.linalg.norm(grad_dtfm, axis=2, keepdims=True)
+    uvec = np.nan_to_num(grad_dtfm / norm)
+
+    np.save(f'{dir_uvec}/{imgid}', uvec)
+    return imgid
     
 
 
