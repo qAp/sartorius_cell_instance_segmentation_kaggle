@@ -17,6 +17,6 @@ p = multiprocessing.Pool(processes=os.cpu_count())
 with tqdm(total=len(args_list)) as pbar:
     for imgid in p.imap(_generate_normalised_gradient, args_list):
         pbar.set_description(f'Processing {imgid}')
-        pbar.udpate(1)
+        pbar.update(1)
 
 p.close()
