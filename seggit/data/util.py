@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import cv2
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
-from seggit.data.config import DIR_BASE
+from seggit.data.config import DIR_BASE, DIR_MASK
 
 
 
@@ -81,4 +81,32 @@ def _generate_mask(args):
 
     write_status = cv2.imwrite(f'{dir_mask}/{imgid}.png', mask)
     return imgid, write_status
+
+
+def _generate_distance_transform(args):
+    '''
+    Generate distance transform of semantic segmentations.
+
+    Args:
+        `dir_dtfm` (str, Path): Directory in which distance transforms
+            will be saved in.  One file per image.
+
+    Notes:
+    `dtfm` has values between 0 and some positive number. 
+    It's not normalised to the range (0, 1).
+
+    '''
+    imgid, dir_dtfm = args
+
+    mask = cv2.imread(f'{DIR_MASK}/{imgid}.png')
+    mask = mask[..., 0]  # (height, width), (0, 1), np.uint8
+    dtfm = cv2.distanceTransform(src=mask, 
+                                 distanceType=cv2.DIST_L2, 
+                                 maskSize=3)  # (height, width), np.float32
+
+    np.save(f'{dir_dtfm}/{imgid}', dtfm)
+    return imgid
+    
+
+
 
