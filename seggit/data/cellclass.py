@@ -8,13 +8,12 @@ from albumentations.augmentations.crops.transforms import RandomCrop
 import pytorch_lightning as pl
 import cv2
 
-from seggit.data.util import *
+from seggit.data.config import *
 from seggit.data.util import generate_kfold
 
 
 
-DIR_IMG = f'{DIR_BASE}/train'
-DIR_MASK = '/kaggle/input/sardata-train-mask/train_mask'
+
 
 FOLD = 0
 IMAGE_SIZE = 480

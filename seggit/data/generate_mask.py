@@ -3,7 +3,8 @@ import multiprocessing
 import pandas as pd
 from tqdm.auto import tqdm
 
-from seggit.data.util import DIR_BASE, _generate_mask
+from seggit.data.config import DIR_BASE
+from seggit.data.util import _generate_mask
 
 dir_mask = '/kaggle/working/train_mask'
 os.makedirs(dir_mask, exist_ok=True)

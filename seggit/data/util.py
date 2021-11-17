@@ -6,11 +6,8 @@ import numpy as np
 import pandas as pd
 import cv2
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
+from seggit.data.config import DIR_BASE
 
-__all__ = ['DIR_BASE', 'DIR_KFOLD']
-
-DIR_BASE = '/kaggle/input/sartorius-cell-instance-segmentation/'
-DIR_KFOLD = '/kaggle/input/sardata-kfold/kfold'
 
 
 def generate_kfold(dir_kfold='/kaggle/working/kfold'):
