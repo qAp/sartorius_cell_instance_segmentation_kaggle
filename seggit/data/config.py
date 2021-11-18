@@ -7,4 +7,5 @@ DIR_KFOLD = '/kaggle/input/sardata-kfold/kfold'
 DIR_IMG = f'{DIR_BASE}/train'
 DIR_MASK = '/kaggle/input/sardata-train-mask/train_mask'
 DIR_DTFM = '/kaggle/input/sardata-distance-transform/distance_transform'
+DIR_UVEC = '/kaggle/input/sardata-uvec/uvec'
 
