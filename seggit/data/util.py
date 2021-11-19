@@ -83,6 +83,31 @@ def _generate_mask(args):
     return imgid, write_status
 
 
+def _generate_instance_area(args):
+    train, imgid, dir_area = args
+
+    for i, cell in enumerate(train[train['id'] == imgid].itertuples()):
+        semseg_cell = rle_decode(mask_rle=cell.annotation,
+                                 shape=(cell.height, cell.width, 1),
+                                 color=1)
+
+        area_cell = semseg_cell.sum()
+
+        if i == 0:
+            semseg = semseg_cell.copy()
+            instance_area = area_cell * semseg_cell
+        else:
+            semseg += semseg_cell
+            instance_area += (area_cell * semseg_cell)
+
+    overlap = semseg > 1
+    semseg[overlap] = 0
+    instance_area[overlap] = 0
+
+    np.save(f'{dir_area}/{imgid}', instance_area)
+    return imgid
+
+
 def _generate_distance_transform(args):
     '''
     Generate distance transform of semantic segmentations.
