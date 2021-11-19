@@ -1,1 +1,2 @@
 from segmentation_models_pytorch import Unet
+from .direction_net import DirectionNet
