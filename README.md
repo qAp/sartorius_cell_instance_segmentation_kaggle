@@ -10,6 +10,8 @@ https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 - [ ] Generate normalised gradient of distance transform for training Direction Net.
 - [ ] Construct Direction Net.
 
+# Direction Net
+<img src="images/direction_net.png" width=500 height=500>
 
 # Notes on Deep Watershed Transform
 ## Instance level segmentation approaches
