@@ -14,10 +14,10 @@ https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 - [ ] Get Direction Net training going.
 
 # Overall Architecture
-<img src="images/direction_net.png" width=900 height=450>
+<img src="images/direction_net.png" width=900 height=350>
 
 # Direction Net
-<img src="images/instance_direction_dataset_sample.png" width=900, height=900>
+<img src="images/instance_direction_dataset_sample.png" width=900, height=700>
 
 # Notes on Deep Watershed Transform
 ## Instance level segmentation approaches
