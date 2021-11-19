@@ -7,8 +7,11 @@ https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 - [ ] Monitor validation loss, instead of validation metric, for callbacks.
 - [ ] Keep the channel dimension of mask through training like in segmentation_models_pytorch?
 - [x] Get segmentation training going.
-- [ ] Generate normalised gradient of distance transform for training Direction Net.
-- [ ] Construct Direction Net.
+- [x] Generate normalised gradient of distance transform for training Direction Net.
+- [x] Implement direction loss.
+- [x] Construct Direction Net.
+- [ ] Make datamodule for Direction Net training.
+- [ ] Get Direction Net training going.
 
 # Direction Net
 <img src="images/direction_net.png" width=900 height=450>
