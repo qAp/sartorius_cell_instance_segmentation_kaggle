@@ -11,7 +11,7 @@ https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 - [ ] Construct Direction Net.
 
 # Direction Net
-<img src="images/direction_net.png" width=500 height=250>
+<img src="images/direction_net.png" width=900 height=450>
 
 # Notes on Deep Watershed Transform
 ## Instance level segmentation approaches
