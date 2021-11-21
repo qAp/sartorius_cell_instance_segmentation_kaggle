@@ -18,7 +18,7 @@ class DirectionLoss(nn.Module):
         '''
         pred = pred.permute(1, 0, 2, 3).view(2, -1)
         targ = targ.permute(1, 0, 2, 3).view(2, -1)
-        mask = mask.permute(1, 0, 2, 3).view(1, -1)
+        mask = mask.permute(1, 0, 2, 3).view(1, -1).type(torch.bool)
         instance_area = instance_area.permute(1, 0, 2, 3).view(1, -1)
         dotprod = (pred * targ).sum(dim=0, keepdims=True)
         dotprod = dotprod[mask]
