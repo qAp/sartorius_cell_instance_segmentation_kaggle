@@ -11,21 +11,15 @@ class DirectionLoss(nn.Module):
 
     def forward(self, pred, targ, mask, instance_area):
         '''
-        Args:
-            pred (torch.Tensor): Of size (height, width, 2)
-                Predicted normalised gradient distance transform.
-            targ (torch.Tensor): Of size (height, width, 2)
-                Predicted normalised gradient distance transform.
-            mask (torch.Tensor): Of size (height, width).  
-                Semantic segmentation.
-            instance_area (torch.Tensor): Of size (height, width).
-                Area of instance in which pixel lies.
+        pred [N, 2, H, W]
+        targ [N, 2, H, W]
+        mask [N, 1, H, W]
+        instance_area [N, 1, H, W]
         '''
-        pred = pred.permute(2, 0, 1).view(2, -1)
-        targ = targ.permute(2, 0, 1).view(2, -1)
-        mask = mask.type(torch.bool).view(1, -1)
-        instance_area = instance_area.view(1, -1)
-
+        pred = pred.permute(1, 0, 2, 3).view(2, -1)
+        targ = targ.permute(1, 0, 2, 3).view(2, -1)
+        mask = mask.permute(1, 0, 2, 3).view(1, -1)
+        instance_area = instance_area.permute(1, 0, 2, 3).view(1, -1)
         dotprod = (pred * targ).sum(dim=0, keepdims=True)
         dotprod = dotprod[mask]
 
@@ -40,3 +34,5 @@ class DirectionLoss(nn.Module):
         weighted_sum = (angle_squared * instance_area).sum()
 
         return weighted_sum
+
+ 
