@@ -86,7 +86,7 @@ class InstanceDirectionDataset(torch.utils.data.Dataset):
             img = tfmd['image']
             mask = tfmd['mask']
 
-        img = img[..., [0]]
+        img = img[[0], ...]
         uvec = mask[..., :2]
         semseg = mask[..., [2]]
         area = mask[..., [3]]
