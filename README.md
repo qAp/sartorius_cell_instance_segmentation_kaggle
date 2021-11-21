@@ -10,7 +10,7 @@ https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 - [x] Generate normalised gradient of distance transform for training Direction Net.
 - [x] Implement direction loss.
 - [x] Construct Direction Net.
-- [ ] Make datamodule for Direction Net training.
+- [x] Make datamodule for Direction Net training.
 - [ ] Get Direction Net training going.
 
 # Overall Architecture
