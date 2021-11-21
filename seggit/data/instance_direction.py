@@ -157,7 +157,7 @@ class InstanceDirection(pl.LightningDataModule):
         self.valid_ds = InstanceDirectionDataset(df=valid_df, 
                                                  transform=self.transform)
 
-    def train_dataloaders(self):
+    def train_dataloader(self):
         return torch.utils.data.DataLoader(
             dataset=self.train_ds,
             batch_size=self.batch_size,
@@ -166,7 +166,7 @@ class InstanceDirection(pl.LightningDataModule):
             pin_memory=self.on_gpu
         )
 
-    def val_dataloaders(self):
+    def val_dataloader(self):
         return torch.utils.data.DataLoader(
             dataset=self.valid_ds,
             batch_size=self.batch_size,
