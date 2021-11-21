@@ -86,7 +86,7 @@ class InstanceDirectionDataset(torch.utils.data.Dataset):
             img = tfmd['image']
             mask = tfmd['mask']
 
-        img = img[[0], ...]
+        img = img[..., [0]]
         uvec = mask[..., :2]
         semseg = mask[..., [2]]
         area = mask[..., [3]]
@@ -107,8 +107,7 @@ class InstanceDirection(pl.LightningDataModule):
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
         self.on_gpu = isinstance(self.args.get('gpus', None) , (int, str))
 
-        transform = _default_tfms()
-        self.transform = albu.Compose(transform)
+        self.transform = None
 
         self.train_ds: InstanceDirectionDataset
         self.valid_ds: InstanceDirectionDataset
