@@ -90,7 +90,7 @@ class InstanceDirectionDataset(torch.utils.data.Dataset):
         semseg = mask[..., [2]]
         area = mask[..., [3]]
 
-        img = img / 255
+        img = (img / 255).astype(np.float32)
 
         return img, uvec, semseg, area
 
