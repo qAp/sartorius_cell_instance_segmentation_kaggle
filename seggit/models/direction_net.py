@@ -101,40 +101,30 @@ class DirectionNet(nn.Module):
     def forward(self, x):
         input_size = x.shape[-2:]
 
-        print(x.shape)
         x = self.conv1(x)
         x = self.pool1(x)
         x = self.conv2(x)
         x = self.pool2(x)
         x = self.conv3(x)
-        print(x.shape)
 
         x3 = self.fcn3(x)
-        print('x3', x3.shape, x3.mean(), x3.std())
 
         x = self.pool3(x)
         x = self.conv4(x)
-        print(x.shape)
 
         x4 = self.fcn4(x)
         x4 = nn.Upsample(x3.shape[-2:])(x4)
-        print('x4', x4.shape, x4.mean(), x4.std())
 
         x = self.pool4(x)
         x = self.conv5(x)
-        print(x.shape)
 
         x5 = self.fcn5(x)
         x5 = nn.Upsample(x3.shape[-2:])(x5)
-        print('x5', x5.shape, x5.mean(), x5.std())
 
         x = torch.cat([x3, x4, x5], dim=1)
-        print(x.shape)
 
         x = self.fuse3(x)
-        print(x.shape)
 
         x = nn.Upsample(input_size)(x)
-        print(x.shape)
 
         return x
