@@ -83,7 +83,7 @@ class InstanceDirectionDataset(torch.utils.data.Dataset):
 
         if self.transform:
             tfmd = self.transform(image=img, mask=mask)
-            image = tfmd['image']
+            img = tfmd['image']
             mask = tfmd['mask']
 
         img = img[..., [0]]
