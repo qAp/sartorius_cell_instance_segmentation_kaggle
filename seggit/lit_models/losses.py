@@ -34,8 +34,11 @@ class DirectionLoss(nn.Module):
                          .pow(2)
                          )
 
-        weighted_sum = (angle_squared * instance_area).sum()
+        # weighted_sum = (angle_squared * instance_area).sum()
 
-        return weighted_sum / batch_size
+        # return weighted_sum / batch_size
+
+        weighted_mean = (angle_squared * instance_area).mean()
+        return weighted_mean
 
  
