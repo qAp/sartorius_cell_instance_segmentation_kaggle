@@ -34,7 +34,9 @@ class InstanceDirectionLitModel(pl.LightningModule):
     @staticmethod
     def add_argparse_args(parser):
         parser.add_argument('--lr', type=float, default=LR)
-        parser.add_argmuent('--optimizer', type=str, default='optimizer')
+        parser.add_argmuent('--optimizer', type=str, default=OPTIMIZER)
+        parser.add_argument('--one_cycle_total_steps', 
+                            type=int, default=ONE_CYCLE_TOTAL_STEPS)
 
     def configure_optimizers(self):
         optimizer = self.optimizer(self.parameters(), 
