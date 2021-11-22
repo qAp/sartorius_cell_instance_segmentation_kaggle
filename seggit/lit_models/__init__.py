@@ -1,1 +1,2 @@
 from .base import BaseLitModel
+from .instance_direction_litmodel import InstanceDirectionLitModel
