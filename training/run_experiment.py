@@ -65,7 +65,8 @@ def main():
 
     logger = pl.loggers.TensorBoardLogger(args.dir_out)
     if args.wandb:
-        logger = pl.loggers.WandbLogger()
+        logger = pl.loggers.WandbLogger(
+            project='sartorius_cell_instance_segmentation_kaggle-direction_net_training')
         logger.watch(model)
         logger.log_hyperparams(vars(args))
 
