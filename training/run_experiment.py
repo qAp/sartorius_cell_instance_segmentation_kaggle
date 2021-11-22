@@ -40,6 +40,10 @@ def main():
     parser = _setup_parser()
     args = parser.parse_args()
 
+    if args.data_class == 'InstanceDirection':
+        assert args.model_class == 'DirectionNet'
+        assert args.lit_model_class == 'InstanceDirectionLitModel'
+
     data_class = _import_class(f'seggit.data.{args.data_class}')
     model_class = _import_class(f'seggit.models.{args.model_class}')
     lit_model_class = _import_class(
@@ -49,10 +53,13 @@ def main():
     data.prepare_data()
     data.setup()
 
-    model = model_class(encoder_name=args.encoder_name, 
-                        in_channels=1,
-                        classes=1, 
-                        activation='sigmoid')
+    if args.model_class == 'DirectionNet':
+        model = model_class()
+    else:
+        model = model_class(encoder_name=args.encoder_name, 
+                            in_channels=1,
+                            classes=1, 
+                            activation='sigmoid')
 
     lit_model = lit_model_class(model, args=args)
 
@@ -62,15 +69,30 @@ def main():
         logger.watch(model)
         logger.log_hyperparams(vars(args))
 
+    if args.lit_model_class == 'InstanceDirectionLitModel':
+        monitor = 'val_loss'
+        mode = 'min'
+    else:
+        monitor = 'val_iou5'
+        mode = 'max'
     early_stopping_callback = pl.callbacks.EarlyStopping(
-        monitor='val_iou5',
-        mode='max',
+        monitor=monitor,
+        mode=mode,
         patience=10)
 
+    if args.lit_model_class == 'InstanceDirectionLitModel':
+        filename = f'fold{args.fold:d}-' + '{epoch:03d}-{val_loss:.3f}'
+        monitor = 'val_loss'
+        mode = 'min'
+    else:
+        filename = (f'fold{args.fold:d}-' + 
+                    '{epoch:03d}-{val_loss:.3f}-{val_iou5:.3f}')
+        monitor = 'val_iou5'
+        mode = 'max'
     model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        filename=f'fold{args.fold:d}-' + '{epoch:03d}-{val_loss:.3f}-{val_iou5:.3f}',
-        monitor='val_iou5',
-        mode='max', 
+        filename=filename,
+        monitor=monitor,
+        mode=mode, 
         save_last=True)
 
     # callbacks = [early_stopping_callback,
