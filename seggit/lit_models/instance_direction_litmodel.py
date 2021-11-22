@@ -65,6 +65,7 @@ class InstanceDirectionLitModel(pl.LightningModule):
         loss = self.train_loss(logits, uvec, semseg, area)
 
         self.log('train_loss', loss)
+        return loss
 
     def validation_step(self, batch, batch_idx):
         img, uvec, semseg, area = batch 
