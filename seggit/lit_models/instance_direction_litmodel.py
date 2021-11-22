@@ -81,4 +81,4 @@ class InstanceDirectionLitModel(pl.LightningModule):
 
         loss = self.val_loss(logits, uvec, semseg, area)
 
-        self.log('val_loss', loss)
+        self.log('val_loss', loss, prog_bar=True)
