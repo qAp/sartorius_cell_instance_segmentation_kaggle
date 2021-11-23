@@ -107,7 +107,7 @@ class InstanceDirection(pl.LightningDataModule):
         self.on_gpu = isinstance(self.args.get('gpus', None) , (int, str))
 
         self.train_transform = albu.Compose(_train_tfms(self.image_size))
-        self.valid_transform = None
+        self.valid_transform = albu.Compose(_train_tfms(self.image_size))
 
         self.train_ds: InstanceDirectionDataset
         self.valid_ds: InstanceDirectionDataset
