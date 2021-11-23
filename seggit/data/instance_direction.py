@@ -106,7 +106,8 @@ class InstanceDirection(pl.LightningDataModule):
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
         self.on_gpu = isinstance(self.args.get('gpus', None) , (int, str))
 
-        self.transform = None
+        self.train_transform = albu.Compose(_train_tfms(self.image_size))
+        self.valid_transform = None
 
         self.train_ds: InstanceDirectionDataset
         self.valid_ds: InstanceDirectionDataset
@@ -150,10 +151,14 @@ class InstanceDirection(pl.LightningDataModule):
         except FileNotFoundError:
             print(f'Fold csv files not found at {DIR_KFOLD}')
 
-        self.train_ds = InstanceDirectionDataset(df=train_df, 
-                                                 transform=self.transform)
-        self.valid_ds = InstanceDirectionDataset(df=valid_df, 
-                                                 transform=self.transform)
+        self.train_ds = InstanceDirectionDataset(
+            df=train_df, 
+            transform=self.train_transform
+            )
+        self.valid_ds = InstanceDirectionDataset(
+            df=valid_df, 
+            transform=self.valid_transform
+            )
 
     def train_dataloader(self):
         return torch.utils.data.DataLoader(
