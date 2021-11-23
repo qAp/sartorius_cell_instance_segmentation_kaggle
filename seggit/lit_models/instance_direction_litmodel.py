@@ -47,6 +47,7 @@ class InstanceDirectionLitModel(pl.LightningModule):
             return optimizer
         else:
             lr_scheduler = torch.optim.lr_scheduler.OneCycleLR(
+                optimizer=optimizer,
                 max_lr=self.one_cycle_max_lr,
                 total_steps=self.one_cycle_total_steps)
             return {'optimizer': optimizer, 'lr_scheduler': lr_scheduler}
