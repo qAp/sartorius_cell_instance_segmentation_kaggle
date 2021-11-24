@@ -125,28 +125,34 @@ class InstanceDirection(pl.LightningDataModule):
         parser.add_argument('--num_workers', type=int, default=NUM_WORKERS)
 
     def prepare_data(self):
-        if not os.path.exists(DIR_KFOLD):
-            print(f'K-folds directory {DIR_KFOLD} not found.')
-            print(f'Generate k-folds with data.util.generate_kfold')
 
-        if not os.path.exists(DIR_IMG):
-            print(f'Image directory {DIR_IMG} not found.')
-            print('Load competition data.')
+        assert os.path.exists(DIR_KFOLD), (
+            f'K-folds directory {DIR_KFOLD} not found.'
+            f'Generate k-folds with data.util.generate_kfold'
+        )
 
-        if not os.path.exists(DIR_DTFM):
-            print(f'Distance transform {DIR_DTFM} not found.')
-            print('Load or generate with '
-                  'data/scripts/generate_normalised_gradient.py')
+        assert os.path.exists(DIR_IMG), (
+            f'Image directory {DIR_IMG} not found.'
+            'Load competition data.'
+        )
 
-        if not os.path.exists(DIR_MASK):
-            print(f'Semantic segmentation {DIR_MASK} not found.')
-            print('Load this or generate with ' 
-                  'data/scripts/generate_mask.py')
+        assert os.path.exists(DIR_DTFM), (
+            f'Distance transform {DIR_DTFM} not found.'
+            'Load or generate with '
+            'data/scripts/generate_normalised_gradient.py'
+        )
 
-        if not os.path.exists(DIR_AREA):
-            print(f'Instance area {DIR_AREA} not found.')
-            print('Load this or generate with'
-                  'data/scripts/generate_instance_area.py')
+        assert os.path.exists(DIR_MASK), (
+            f'Semantic segmentation {DIR_MASK} not found.'
+            'Load this or generate with ' 
+            'data/scripts/generate_mask.py'
+        )
+
+        assert os.path.exists(DIR_AREA), (
+            f'Instance area {DIR_AREA} not found.'
+            'Load this or generate with'
+            'data/scripts/generate_instance_area.py'
+        )
 
     def setup(self):
         try:
