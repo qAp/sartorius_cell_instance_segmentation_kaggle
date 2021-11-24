@@ -9,7 +9,7 @@ import albumentations as albu
 import pytorch_lightning as pl
 from seggit.data.config import (DIR_KFOLD, 
                                 DIR_IMG, 
-                                DIR_UVEC, DIR_MASK, DIR_AREA)
+                                DIR_MASK, DIR_AREA, DIR_DTFM)
 
 
 FOLD = 0
@@ -73,22 +73,27 @@ class InstanceDirectionDataset(torch.utils.data.Dataset):
         imgid = self.imgids[i]
 
         img = cv2.imread(f'{DIR_IMG}/{imgid}.png')
-        uvec = np.load(f'{DIR_UVEC}/{imgid}.npy')
         semseg = cv2.imread(f'{DIR_MASK}/{imgid}.png')
         area = np.load(f'{DIR_AREA}/{imgid}.npy')
+        dtfm = np.load(f'{DIR_DTFM}/{imgid}.npy')
 
         semseg = semseg[..., [0]].astype(np.float32)
+        dtfm = dtfm[..., None]
 
-        mask = np.concatenate([uvec, semseg, area], axis=2)
+        mask = np.concatenate([semseg, area, dtfm], axis=2)
 
         if self.transform:
             tfmd = self.transform(image=img, mask=mask)
             img = tfmd['image']
             mask = tfmd['mask']
 
-        uvec = mask[..., :2]
-        semseg = mask[..., [2]]
-        area = mask[..., [3]]
+        semseg = mask[..., [0]]
+        area = mask[..., [1]]
+        dtfm = mask[..., [2]]
+
+        grad_dtfm = np.stack(np.gradient(dtfm[..., 0]), axis=2)
+        norm = np.linalg.norm(grad_dtfm, axis=2, keepdims=True)
+        uvec = np.nan_to_num(grad_dtfm / norm)
 
         img = (img / 255).astype(np.float32)
 
@@ -128,9 +133,8 @@ class InstanceDirection(pl.LightningDataModule):
             print(f'Image directory {DIR_IMG} not found.')
             print('Load competition data.')
 
-        if not os.path.exists(DIR_UVEC):
-            print(f'Normalised gradient distance transform '
-                  f'{DIR_UVEC} not found.')
+        if not os.path.exists(DIR_DTFM):
+            print(f'Distance transform {DIR_DTFM} not found.')
             print('Load or generate with '
                   'data/scripts/generate_normalised_gradient.py')
 
