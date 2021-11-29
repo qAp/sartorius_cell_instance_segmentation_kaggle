@@ -12,6 +12,9 @@ https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 - [x] Construct Direction Net.
 - [x] Make datamodule for Direction Net training.
 - [x] Get Direction Net training going.
+- [ ] Generate watershed energy maps.
+- [ ] Build Watershed Transform Network (WTN)
+- [ ] Get WTN training going.
 
 # Overall Architecture
 <img src="images/direction_net.png" width=900 height=350>
