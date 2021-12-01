@@ -148,5 +148,60 @@ def _generate_normalised_gradient(args):
     return imgid
     
 
+def get_most_dtfm_imgid():
+    '''
+    Get the image id of the image that has the largest 
+    number of unique distance transform values.
+    '''
+    train = pd.read_csv(f'{DIR_BASE}/train.csv')
+
+    imgids = train['id'].unique()
+
+    num_levels = []
+    for imgid in tqdm(imgids, total=len(imgids)):
+        dtfm = np.load(f'{DIR_DTFM}/{imgid}.npy')
+        levels = np.unique(dtfm)
+        num_levels.append(len(levels))
+
+    return imgids[np.array(num_levels).argmax()]
+
+
+def define_watershed_energy_bins():
+    '''
+    Returns:
+        bins (np.array), np.float32: Distance transform values that 
+            bounds the watershed energy levels.  `bins[0]` is the 
+            lower bound of energy level 1 and the upper bound of
+            energy level 0.  `bins[-1]` if the lower bound of
+            the highest energy level
+    '''
+    imgid = get_most_dtfm_imgid()
+
+    n = 20 # Number of lowest distance transform values to use
+
+    dtfm = np.load(f'{DIR_DTFM}/{imgid}.npy')
+    bins = np.unique(dtfm)[:n]
+
+    # Manually add several wide bins to cover the higher range.
+    bins = np.concatenate([bins, np.array([10, 20, 40, 80])],
+                          axis=0)
+    assert (np.diff(bins) > 0).all()
+
+    # Left-merge very narrow intervals
+    min_bin_width = 0.2
+    levels_too_narrow = np.ones_like(bins).astype(np.bool)
+    levels_too_narrow[0] = False
+    levels_too_narrow[1:] = np.diff(bins) < min_bin_width
+    levels_too_narrow[-1] = False
+    bins = bins[~levels_too_narrow]
+
+    bins = bins[1:]  # Drop 0, because using np.digitize
+
+    # Pushes bin edges towards cell boundary 
+    # and likely ensures all bins are occupied.
+    bins = np.round(bins, 3)
+
+    return bins
+
 
 
