@@ -8,6 +8,7 @@ import pandas as pd
 import cv2
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 from seggit.data.config import DIR_BASE, DIR_MASK, DIR_DTFM
+from seggit.data.config import WATERSHED_ENERGY_BINS
 
 
 
@@ -203,6 +204,21 @@ def define_watershed_energy_bins():
     bins = np.round(bins, 3)
 
     return bins
+
+
+def _generate_watershed_energy(args):
+    '''
+    Generate watershed energy by digitizing 
+    distance transform using pre-defined energy bins.
+    '''
+    imgid, dir_energy = args
+
+    dtfm = np.load(f'{DIR_DTFM}/{imgid}.npy')
+    energy = np.digitize(dtfm, bins=WATERSHED_ENERGY_BINS)
+
+    np.save(f'{dir_energy}/{imgid}', energy)
+
+    return imgid
 
 
 
