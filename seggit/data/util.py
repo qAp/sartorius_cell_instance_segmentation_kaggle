@@ -1,6 +1,7 @@
 
 
 import os, sys
+from tqdm.auto import tqdm
 import multiprocessing
 import numpy as np
 import pandas as pd
