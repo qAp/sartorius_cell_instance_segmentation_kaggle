@@ -9,6 +9,7 @@ DIR_MASK = '/kaggle/input/sardata-train-mask/train_mask'
 DIR_AREA = '/kaggle/input/sardata-instance-area/instance_area'
 DIR_DTFM = '/kaggle/input/sardata-distance-transform/distance_transform'
 DIR_UVEC = '/kaggle/input/sardata-uvec/uvec'
+DIR_ENERGY = '/kaggle/input/sardata-watershed-energy/watershed_energy'
 
 # Generated with data.util.define_watershed_energy_bins()
 WATERSHED_ENERGY_BINS = np.array(
