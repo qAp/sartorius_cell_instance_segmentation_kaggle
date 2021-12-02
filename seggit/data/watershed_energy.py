@@ -109,7 +109,7 @@ class WatershedEnergy(pl.LightningDataModule):
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
         self.on_gpu = isinstance(self.args.get('gpu', None), (int, str))
 
-        transform = _tfms()
+        transform = _tfms(self.image_size)
         self.transform = albu.Compose(transform)
 
         self.train_ds: WatershedEnergyDataset
