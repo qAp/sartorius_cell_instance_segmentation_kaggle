@@ -28,6 +28,13 @@ Here are all the relevant maps that are considered in the overall workflow:
 
 The watershed energy ranges from 0 to 17.  Only larger cells have the highest energy levels.  The watershed energy levels are based on the discrete distance transform values.
 
+## 2021-12-02
+The watershed transform network (WTN) is implemented based on the description in the paper, but it's not a exact description, so will likely need to adjust the architecture later.  
+
+The watershed loss has also been implemented based on the equation in the paper.  It's  not clear what the bar over variables $y$ and $t$ means, but given it's something like cross entropy, these are likely just $(1 - y)$ and $1 - t$, respectively.  Because of the pixel weights $w_p$, I first applied `nn.LogSoftmax` to the logits, then multiplied it with $w_p$.  Then, the energy weights $c_k$ are used to define a weighted negative log likelihood loss function with `nn.NLLoss`, which is then applied to the product of $w_p$ and the logits.  
+
+The paper just says that errors in predicting the lower energies should be penalised more, without given explicit values of $c_k$, so right now, these are just 17, 16, ..., 1. 
+
 
 
 
