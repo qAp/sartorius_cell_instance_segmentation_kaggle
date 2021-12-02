@@ -24,7 +24,7 @@ The training loss doesn't appear to decrease with epochs trained.
 The distance transform is converted to watershed energy, which is just the distance transform sorted into a relatively small number of bins.  
 
 Here are all the relevant maps that are considered in the overall workflow:
-<img src="images/relevant_maps_upto_watershed_energy.png" width=900>
+<img src="images/relevant_maps_upto_watershed_energy.png" width=1100>
 
 The watershed energy ranges from 0 to 17.  Only larger cells have the highest energy levels.  The watershed energy levels are based on the discrete distance transform values.
 
