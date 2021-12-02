@@ -11,6 +11,10 @@ from seggit.data.config import DIR_BASE, DIR_MASK, DIR_DTFM
 from seggit.data.config import WATERSHED_ENERGY_BINS
 
 
+def print_info(a):
+    info = (a.dtype, a.shape, a.min(), a.mean(), a.max())
+    print(info)
+
 
 def generate_kfold(dir_kfold='/kaggle/working/kfold'):
 
