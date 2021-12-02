@@ -83,7 +83,9 @@ class WatershedEnergyDataset(torch.utils.data.Dataset):
             axis=2)
 
         if self.transform:
-            transformed = self.transform(image=mask[...,[0]], mask=mask)
+            transformed = self.transform(
+                image=mask[...,[0]].astype(np.uint8),  # dummy image
+                mask=mask)
             mask = transformed['mask']
 
         grad_dtfm = np.stack(np.gradient(mask[..., 2]), axis=2)
