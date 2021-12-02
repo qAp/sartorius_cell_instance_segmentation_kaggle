@@ -33,7 +33,7 @@ The watershed transform network (WTN) is implemented based on the description in
 
 The watershed loss has also been implemented based on the equation in the paper.  It's  not clear what the bar over variables $y$ and $t$ means, but given it's something like cross entropy, these are likely just $(1 - y)$ and $1 - t$, respectively.  Because of the pixel weights $w_p$, I first applied `nn.LogSoftmax` to the logits, then multiplied it with $w_p$.  Then, the energy weights $c_k$ are used to define a weighted negative log likelihood loss function with `nn.NLLoss`, which is then applied to the product of $w_p$ and the logits.  
 
-The paper just says that errors in predicting the lower energies should be penalised more, without given explicit values of $c_k$, so right now, these are just 17, 16, ..., 1. 
+The paper just says that errors in predicting the lower energies should be penalised more, without giving explicit values of $c_k$, so right now, these are just 17, 16, ..., 1. 
 
 
 
