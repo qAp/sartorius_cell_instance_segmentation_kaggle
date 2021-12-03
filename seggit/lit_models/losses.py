@@ -52,7 +52,7 @@ class WatershedEnergyLoss(nn.Module):
         self.n_energy = len(WATERSHED_ENERGY_BINS) + 1
         self.logsoftmax = nn.LogSoftmax(dim=1)
         weight_energy = torch.arange(self.n_energy, 0, -1).type(torch.float32)        
-        self.nlloss = nn.NLLoss(weight=weight_energy)
+        self.nlloss = nn.NLLLoss(weight=weight_energy)
 
     def forward(self, logits, energy, semseg, area):
         logits = logits.permute(0, 2, 3, 1).reshape(-1, self.n_energy)
