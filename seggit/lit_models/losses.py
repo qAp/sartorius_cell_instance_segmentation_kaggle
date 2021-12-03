@@ -47,7 +47,7 @@ class WatershedEnergyLoss(nn.Module):
     Issues:
     1. Not sure what the weights for different energy levels should be.
     '''
-    def __init__(self, weight_energy):
+    def __init__(self):
         super().__init__()
         self.n_energy = len(WATERSHED_ENERGY_BINS) + 1
         self.logsoftmax = nn.LogSoftmax(dim=1)
