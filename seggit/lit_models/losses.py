@@ -2,6 +2,8 @@
 import torch
 import torch.nn as nn
 
+from seggit.data.config import WATERSHED_ENERGY_BINS
+
 
 
 class DirectionLoss(nn.Module):
@@ -40,3 +42,32 @@ class DirectionLoss(nn.Module):
         return weighted_sum / batch_size
 
  
+class WatershedEnergyLoss(nn.Module):
+    '''
+    Issues:
+    1. Not sure what the weights for different energy levels should be.
+    '''
+    def __init__(self, weight_energy):
+        super().__init__()
+        self.n_energy = len(WATERSHED_ENERGY_BINS) + 1
+        self.logsoftmax = nn.LogSoftmax(dim=1)
+        weight_energy = torch.arange(self.n_energy, 0, -1).type(torch.float32)        
+        self.nlloss = nn.NLLoss(weight=weight_energy)
+
+    def forward(self, logits, energy, semseg, area):
+        logits = logits.permute(0, 2, 3, 1).reshape(-1, self.n_energy)
+        semseg = semseg.view(-1)
+        area = area.view(-1)
+        energy = energy.view(-1)
+
+        mask = semseg.type(torch.bool)
+        logits = logits[mask]
+        area = area[mask]
+        energy = energy[mask].type(torch.long)
+
+        logp = self.logsoftmax(logits)
+
+        weight_pixel = 1 / area.sqrt()
+        loss = self.nlloss(weight_pixel[..., None] * logp, energy)
+
+        return loss
