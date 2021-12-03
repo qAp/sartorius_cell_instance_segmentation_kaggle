@@ -35,6 +35,10 @@ The watershed loss has also been implemented based on the equation in the paper.
 
 The paper just says that errors in predicting the lower energies should be penalised more, without giving explicit values of $c_k$, so right now, these are just 17, 16, ..., 1. 
 
+## 2021-12-03
+Watershed transform network is training via `training/run_experiment.py`.
+
+
 
 
 
