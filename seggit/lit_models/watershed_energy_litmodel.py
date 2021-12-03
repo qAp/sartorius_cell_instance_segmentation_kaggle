@@ -14,7 +14,7 @@ OPTIMIZER = 'Adam'
 class WatershedEnergyLitModel(pl.LightningModule):
     def __init__(self, model, args=None):
         super().__init__()
-        
+
         self.model = model
 
         self.args = vars(args) if args is not None else {}
@@ -66,5 +66,5 @@ class WatershedEnergyLitModel(pl.LightningModule):
         logits = self(uvec)
 
         loss = self.val_loss(logits, energy, semseg, area)
-        self.log('val_loss', loss)
+        self.log('val_loss', loss, prog_bar=True)
 
