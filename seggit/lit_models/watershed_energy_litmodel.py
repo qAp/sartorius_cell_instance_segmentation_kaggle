@@ -13,6 +13,8 @@ OPTIMIZER = 'Adam'
 
 class WatershedEnergyLitModel(pl.LightningModule):
     def __init__(self, model, args=None):
+        super().__init__()
+        
         self.model = model
 
         self.args = vars(args) if args is not None else {}
