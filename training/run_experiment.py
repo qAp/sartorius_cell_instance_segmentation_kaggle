@@ -44,7 +44,7 @@ def main():
     if args.data_class == 'InstanceDirection':
         assert args.model_class == 'DirectionNet'
         assert args.lit_model_class == 'InstanceDirectionLitModel'
-    elif: args.data_class == 'WatershedEnergy':
+    elif args.data_class == 'WatershedEnergy':
         assert args.model_class == 'WatershedTransformNet'
         assert args.lit_model_class == 'WatershedEnergyLitModel'
 
