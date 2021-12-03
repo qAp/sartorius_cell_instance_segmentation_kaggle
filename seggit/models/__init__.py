@@ -1,2 +1,3 @@
 from segmentation_models_pytorch import Unet
 from .direction_net import DirectionNet
+from .watershed_transform_net import WatershedTransformNet
