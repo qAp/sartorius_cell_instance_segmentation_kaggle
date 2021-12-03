@@ -40,9 +40,13 @@ def main():
     parser = _setup_parser()
     args = parser.parse_args()
 
+    # Certain datasets go with certain models and lit_models
     if args.data_class == 'InstanceDirection':
         assert args.model_class == 'DirectionNet'
         assert args.lit_model_class == 'InstanceDirectionLitModel'
+    elif: args.data_class == 'WatershedEnergy':
+        assert args.model_class == 'WatershedTransformNet'
+        assert args.lit_model_class == 'WatershedEnergyLitModel'
 
     data_class = _import_class(f'seggit.data.{args.data_class}')
     model_class = _import_class(f'seggit.models.{args.model_class}')
@@ -53,7 +57,7 @@ def main():
     data.prepare_data()
     data.setup()
 
-    if args.model_class == 'DirectionNet':
+    if args.model_class in ['DirectionNet', 'WatershedTransformNet']:
         model = model_class()
     else:
         model = model_class(encoder_name=args.encoder_name, 
@@ -68,13 +72,17 @@ def main():
         if args.lit_model_class == 'InstanceDirectionLitModel':
             project = ('sartorius_cell_instance_segmentation_kaggle-'
                        'direction_net_training')
+        elif args.lit_model_class == 'WatershedEnergyLitModel':
+            project = ('sartorius_cell_instance_segmentation_kaggle-'
+                       'watershed_transform_net_training')
         else:
             project = 'sartorius_cell_instance_segmentation_kaggle-training'
         logger = pl.loggers.WandbLogger(project=project)
         logger.watch(model)
         logger.log_hyperparams(vars(args))
 
-    if args.lit_model_class == 'InstanceDirectionLitModel':
+    if args.lit_model_class in ['InstanceDirectionLitModel', 
+                                'WatershedEnergyLitModel']:
         monitor = 'val_loss'
         mode = 'min'
     else:
@@ -85,7 +93,8 @@ def main():
         mode=mode,
         patience=10)
 
-    if args.lit_model_class == 'InstanceDirectionLitModel':
+    if args.lit_model_class in ['InstanceDirectionLitModel', 
+                                'WatershedEnergyLitModel']:
         filename = f'fold{args.fold:d}-' + '{epoch:03d}-{val_loss:.3f}'
         monitor = 'val_loss'
         mode = 'min'
