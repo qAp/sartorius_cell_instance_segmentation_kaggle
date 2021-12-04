@@ -9,13 +9,16 @@ https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 - [x] Get segmentation training going.
 - [x] Generate normalised gradient of distance transform for training Direction Net.
 - [x] Implement direction loss.
-- [x] Construct Direction Net.
+- [x] Construct Direction Net (DN).
 - [x] Make datamodule for Direction Net training.
 - [x] Get Direction Net training going.
 - [x] Use the unique distance transform values of the image with largest range as the discrete watershed energy levels.  Try number of energy levels between 13 and 20.
 - [x] Generate watershed energy maps. 
-- [ ] Build Watershed Transform Network (WTN)
-- [ ] Get WTN training going.
+- [x] Build Watershed Transform Network (WTN)
+- [x] Get WTN training going.
+- [ ] Pass sample inputs through DN and WTN and see if outputs are reasonable.
+- [ ] Post-process sample watershed energy maps to get instances.
+
 
 # Overall Architecture
 <img src="images/direction_net.png" width=900 height=350>
