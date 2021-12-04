@@ -22,13 +22,8 @@ https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 
 
 # Notes on Deep Watershed Transform
-## Instance level segmentation approaches
-### Proposal based
-### Deep structure models
-### Template matching
-### Recurrent networks
-### CNN
-### Proposal + recursion
+*Watershed transform* is a method that comes from mathematical morphology.
+
 
 
 # References

@@ -38,6 +38,11 @@ The paper just says that errors in predicting the lower energies should be penal
 ## 2021-12-03
 Watershed transform network is training via `training/run_experiment.py`.
 
+## 2021-12-04
+How to cut the watershed energy to get individual instances is shown here https://github.com/min2209/dwt/blob/master/E2E/post_process.py.  Several functions from `skimage.morphology` are used.  
+
+According to https://github.com/min2209/dwt/blob/master/matlab/generate_GT_cityscapes_unified.m, the authors used Matlab's [`bwdist`](https://www.mathworks.com/help/images/ref/bwdist.html) and [`imgradientxy`](https://www.mathworks.com/help/images/ref/imgradientxy.html) to compute the distance transform and gradient, respectively.  Might want to check if the Python functions I've been using correspond to these.
+
 
 
 
