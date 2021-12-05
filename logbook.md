@@ -44,9 +44,9 @@ How to cut the watershed energy to get individual instances is shown here https:
 According to https://github.com/min2209/dwt/blob/master/matlab/generate_GT_cityscapes_unified.m, the authors used Matlab's [`bwdist`](https://www.mathworks.com/help/images/ref/bwdist.html) and [`imgradientxy`](https://www.mathworks.com/help/images/ref/imgradientxy.html) to compute the distance transform and gradient, respectively.  Might want to check if the Python functions I've been using correspond to these.
 
 ## 2021-12-05
+To load a model from checkpoint and do inference, take the relevant `pl.LightningModule` and use the `load_from_checkpoint` method. Supply the same arguments as for the `__init__` method, plus the argument `checkpoint_path` that points to the checkpoint file produced by pytorch lightning during training, for example, by the `ModelCheckpoint` callback.  
 
-Here's a pair of watershed energy ground truth and prediction by a WTN that's only been trained for 2 epochs:
-
+Here's a pair of watershed energy ground truth and prediction by a WTN that's only been trained for 2 epochs:  
 <img src="images/check_WTN_prediction.png" width=900>
 
 
