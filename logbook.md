@@ -45,7 +45,7 @@ According to https://github.com/min2209/dwt/blob/master/matlab/generate_GT_citys
 
 ## 2021-12-05
 
-Here's a pair of watershed energy ground truth and prediction from a hardly trained WTN (2 epochs):
+Here's a pair of watershed energy ground truth and prediction by a WTN that's only been trained for 2 epochs:
 
 <img src="images/check_WTN_prediction.png" width=900>
 
