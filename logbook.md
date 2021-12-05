@@ -43,6 +43,14 @@ How to cut the watershed energy to get individual instances is shown here https:
 
 According to https://github.com/min2209/dwt/blob/master/matlab/generate_GT_cityscapes_unified.m, the authors used Matlab's [`bwdist`](https://www.mathworks.com/help/images/ref/bwdist.html) and [`imgradientxy`](https://www.mathworks.com/help/images/ref/imgradientxy.html) to compute the distance transform and gradient, respectively.  Might want to check if the Python functions I've been using correspond to these.
 
+## 2021-12-05
+
+Here's a pair of watershed energy ground truth and prediction from a hardly trained WTN (2 epochs):
+
+<img src="images/check_WTN_prediction.png" width=900>
+
+
+
 
 
 
