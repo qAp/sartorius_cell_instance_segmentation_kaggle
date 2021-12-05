@@ -95,7 +95,8 @@ def main():
 
     if args.lit_model_class in ['InstanceDirectionLitModel', 
                                 'WatershedEnergyLitModel']:
-        filename = f'fold{args.fold:d}-' + '{epoch:03d}-{val_loss:.3f}'
+        # filename = f'fold{args.fold:d}-' + '{epoch:03d}-{val_loss:.3f}'
+        filename = f'fold{args.fold:d}'
         monitor = 'val_loss'
         mode = 'min'
     else:
