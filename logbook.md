@@ -49,6 +49,17 @@ To load a model from checkpoint and do inference, take the relevant `pl.Lightnin
 Here's a pair of watershed energy ground truth and prediction by a WTN that's only been trained for 2 epochs:  
 <img src="images/check_WTN_prediction.png" width=900>
 
+When a Save & Run kaggle notebook times out, files saved in `/kaggle/working` are retained, and so if these are model checkpoints, they can be used to resume training. 
+
+Kaggle's file system doesn't like filenames with `'='` in them.  When using pytorch lightning to save model, this could be avoided by setting `auto_insert_metric_name` to `False` *and* by using a format string for the filename as shown here, where 'epoch' directly preceeds '{' for example:
+```
+pl.callbacks.ModelCheckpoint(
+        filename='epoch{epoch:03d}-val_loss{val_loss:.3f}',
+        auto_insert_metric_name=False)
+```
+
+Regarding what to use in the inputs and targets for training the DN and WTN, it seems that there are two choices in general: to use model prediction-based targets, or to use competition target-based targets.  For example, the semantic segmentation can either come from the trained Unet, or from the competition target (the instance masks).  The semantic segmentation can in turn be used to obtain the normalised gradient distance transform and the watershed energy.  It seems that if a training target comes from the original competition target and if the input is based on model prediction, the learning task is most difficult, and therefore potentially most fruitful.  For example, using the Unet-generated semantic segmentation in the input of DN and using the competition target-generated normalised gradient distance transform as the target of DN might be a better learning task than if the input semantic segmentation were to be generated from the competition target.
+
 
 
 
