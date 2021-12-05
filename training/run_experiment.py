@@ -112,6 +112,7 @@ def main():
         filename=filename,
         monitor=monitor,
         mode=mode, 
+        auto_insert_metric_name=False,
         save_last=True)
 
     # callbacks = [early_stopping_callback,
