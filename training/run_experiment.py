@@ -95,13 +95,17 @@ def main():
 
     if args.lit_model_class in ['InstanceDirectionLitModel', 
                                 'WatershedEnergyLitModel']:
-        # filename = f'fold{args.fold:d}-' + '{epoch:03d}-{val_loss:.3f}'
-        filename = f'fold{args.fold:d}'
+        filename = (
+            f'fold{args.fold:d}-' + 
+            'epoch{epoch:03d}-val_loss{val_loss:.3f}'
+            )
         monitor = 'val_loss'
         mode = 'min'
     else:
-        filename = (f'fold{args.fold:d}-' + 
-                    '{epoch:03d}-{val_loss:.3f}-{val_iou5:.3f}')
+        filename = (
+            f'fold{args.fold:d}-' + 
+            'epoch{epoch:03d}-val_loss{val_loss:.3f}-val_iou5{val_iou5:.3f}'
+            )
         monitor = 'val_iou5'
         mode = 'max'
     model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
