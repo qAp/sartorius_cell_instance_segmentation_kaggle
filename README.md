@@ -16,8 +16,14 @@ https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 - [x] Generate watershed energy maps. 
 - [x] Build Watershed Transform Network (WTN)
 - [x] Get WTN training going.
+- [ ] Check if trained Unet does something.
 - [ ] Pass sample inputs through Unet, DN and WTN and see if outputs are reasonable.
 - [ ] Post-process sample watershed energy maps to get instances.
+- [ ] Check DN architecture.
+- [ ] Check direction loss definition.
+- [ ] Check architecture of WTN.
+- [ ] Check definition of watershed loss.
+
 
 
 # Overall Architecture
