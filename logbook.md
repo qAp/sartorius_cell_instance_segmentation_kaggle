@@ -61,6 +61,11 @@ pl.callbacks.ModelCheckpoint(
 Regarding what to use in the inputs and targets for training the DN and WTN, it seems that there are two choices in general: to use model prediction-based targets, or to use competition target-based targets.  For example, the semantic segmentation can either come from the trained Unet, or from the competition target (the instance masks).  The semantic segmentation can in turn be used to obtain the normalised gradient distance transform and the watershed energy.  It seems that if a training target comes from the original competition target and if the input is based on model prediction, the learning task is most difficult, and therefore potentially most fruitful.  For example, using the Unet-generated semantic segmentation in the input of DN and using the competition target-generated normalised gradient distance transform as the target of DN might be a better learning task than if the input semantic segmentation were to be generated from the competition target.
 
 
+## 2021-12-07
+Sample prediction by Unet (Resnet152) after 299 epochs:
+
+<img src="images/check_Unet_prediction.png" width=900>
+
 
 
 
