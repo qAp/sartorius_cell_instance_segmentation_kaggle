@@ -66,6 +66,22 @@ Sample prediction by Unet (Resnet152) after 299 epochs:
 
 <img src="images/check_Unet_prediction.png" width=900>
 
+## 2021-12-09
+
+Current trained Unet do not appear to output good semantic segmentation results.  Data Science Bowl 2018 winning solution is studied, to see what's done there.  In particular, @selim's part: https://github.com/selimsef/dsb2018_topcoders/tree/master/selim.
+
+Training targets.  They use 2-channel and 3-channel targets.  2-channel can for example be channel 0 being the nucleus mask and channel 1 being the touching borders mask. 3-channel is the same, but with channel 2 being everything else except channel 0 and 1.  Before being fed into the model, the targets are divided by 255, so they are of values between 0 and 1.
+
+Inference.  If the image size is not whole multiple of 32, it is padded.  It's also padded by 16 on all sides, and the padded area is filled out with 'symmetric'.  For the pipeline with a 2-channel target and sigmoid output activation, the model output is of shape (height, width, 2).  This is averaged over a model ensemble and over 8 testtime augmentation predictions. 
+
+Loss. For 2-channel target, the loss for channel 0 and channel 1 are computed using the same loss function, and then summed together.  The loss function is `dice_coef_loss_bce`, which is a weighted sum of cross binary entropy loss and dice coefficient loss.  
+
+Learning rate is low, 1e-5, no more than 1e-4.  The scheduler simply decreases the learning rate gradually.
+
+Trained for 70 epochs.
+
+
+
 
 
 
