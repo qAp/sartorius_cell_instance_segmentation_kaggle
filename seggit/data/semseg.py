@@ -9,7 +9,7 @@ import pytorch_lightning as pl
 import cv2
 from skimage.morphology import erosion, dilation, square
 from seggit.data.config import DIR_BASE, DIR_KFOLD, DIR_IMG, DIR_SEMSEG
-from seggit.data.config import MEAN_IMAGE, STD_IMAGE
+from seggit.data.config import MEAN_IMAGE, STD_IMAGE, BAD_SAMPLES
 from seggit.data.util import rle_decode 
 from seggit.data.transforms import default_tfms
 
@@ -70,7 +70,7 @@ class SemSegDataset(torch.utils.data.Dataset):
         self.df = df
         self.transform = transform
         self.use_softmax = use_softmax
-        self.imgids = df['id'].unique()
+        self.imgids = [id for id in df['id'].unique() if id not in BAD_SAMPLES]
 
     def __len__(self):
         return len(self.imgids)
