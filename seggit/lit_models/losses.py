@@ -1,9 +1,25 @@
 
 import torch
 import torch.nn as nn
+import segmentation_models_pytorch as smp
 
 from seggit.data.config import WATERSHED_ENERGY_BINS
 
+
+class SemSegLoss(nn.Module):
+    def __init__(self, dice=0.5, bce=0.5):
+        super().__init__()
+        self.dice = dice
+        self.bce = bce
+
+        self.dice_loss = smp.utils.losses.DiceLoss()
+        self.bce_loss = torch.nn.BCELoss()
+
+    def forward(self, pr, gt):
+        return (
+            self.dice * self.dice_loss(pr, gt) +
+            self.bce * self.bce_loss(pr, gt)
+        )
 
 
 class DirectionLoss(nn.Module):
