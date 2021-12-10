@@ -18,8 +18,12 @@ class SemSegLitModel(pl.LightningModule):
         self.model = model
         self.args = vars(args) if args is not None else {}
 
-        self.train_loss = SemSegLoss()
-        self.val_loss = SemSegLoss()
+        self.loss_func = SemSegLoss() 
+        self.val_iou55 = smp.utils.metrics.IoU(threshold=0.55)
+        self.val_iou65 = smp.utils.metrics.IoU(threshold=0.65)
+        self.val_iou75 = smp.utils.metrics.IoU(threshold=0.75)
+        self.val_iou85 = smp.utils.metrics.IoU(threshold=0.85)
+        self.val_iou95 = smp.utils.metrics.IoU(threshold=0.95)
 
         self.lr = self.args.get('lr', LR)
         optimizer = self.args.get('optimizer', OPTIMIZER)
@@ -49,7 +53,7 @@ class SemSegLitModel(pl.LightningModule):
 
         logits = self(img)
 
-        loss = self.train_loss(logits, semseg)
+        loss = self.loss_func(logits, semseg)
 
         self.log('train_loss', loss)
 
@@ -63,9 +67,17 @@ class SemSegLitModel(pl.LightningModule):
 
         logits = self(img)
 
-        loss = self.val_loss(logits, semseg)
+        kwargs = dict(on_step=False, on_epoch=True, prog_bar=True)
+        self.log('val_loss', self.loss_func(logits, semseg), **kwargs)
+        self.log('val_iou55', self.val_iou55(logits, semseg), **kwargs)
+        self.log('val_iou65', self.val_iou65(logits, semseg), **kwargs)
+        self.log('val_iou75', self.val_iou75(logits, semseg), **kwargs)
+        self.log('val_iou85', self.val_iou85(logits, semseg), **kwargs)
+        self.log('val_iou95', self.val_iou95(logits, semseg), **kwargs)
 
-        self.log('val_loss', loss)
+
+
+
 
     
 
