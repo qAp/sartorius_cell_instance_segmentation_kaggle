@@ -9,7 +9,8 @@ import pytorch_lightning as pl
 import cv2
 from skimage.morphology import erosion, dilation, square
 from seggit.data.config import DIR_BASE, DIR_KFOLD, DIR_IMG, DIR_SEMSEG
-from seggit.data.util import rle_decode, MEAN_IMAGE, STD_IMAGE
+from seggit.data.config import MEAN_IMAGE, STD_IMAGE
+from seggit.data.util import rle_decode 
 from seggit.data.transforms import default_tfms
 
 
