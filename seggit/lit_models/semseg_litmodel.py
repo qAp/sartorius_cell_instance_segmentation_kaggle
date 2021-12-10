@@ -20,11 +20,11 @@ class SemSegLitModel(pl.LightningModule):
         self.args = vars(args) if args is not None else {}
 
         self.loss_func = SemSegLoss() 
-        self.val_iou55 = smp.utils.metrics.IoU(threshold=0.55)
-        self.val_iou65 = smp.utils.metrics.IoU(threshold=0.65)
-        self.val_iou75 = smp.utils.metrics.IoU(threshold=0.75)
-        self.val_iou85 = smp.utils.metrics.IoU(threshold=0.85)
-        self.val_iou95 = smp.utils.metrics.IoU(threshold=0.95)
+        self.iou55 = smp.utils.metrics.IoU(threshold=0.55)
+        self.iou65 = smp.utils.metrics.IoU(threshold=0.65)
+        self.iou75 = smp.utils.metrics.IoU(threshold=0.75)
+        self.iou85 = smp.utils.metrics.IoU(threshold=0.85)
+        self.iou95 = smp.utils.metrics.IoU(threshold=0.95)
 
         self.lr = self.args.get('lr', LR)
         optimizer = self.args.get('optimizer', OPTIMIZER)
@@ -55,8 +55,10 @@ class SemSegLitModel(pl.LightningModule):
         logits = self(img)
 
         loss = self.loss_func(logits, semseg)
-
         self.log('train_loss', loss)
+
+        self.log('train_iou95', self.iou95(logits, semseg), 
+                 on_step=False, on_epoch=True)
 
         return loss
 
@@ -70,11 +72,11 @@ class SemSegLitModel(pl.LightningModule):
 
         kwargs = dict(on_step=False, on_epoch=True, prog_bar=True)
         self.log('val_loss', self.loss_func(logits, semseg), **kwargs)
-        self.log('val_iou55', self.val_iou55(logits, semseg), **kwargs)
-        self.log('val_iou65', self.val_iou65(logits, semseg), **kwargs)
-        self.log('val_iou75', self.val_iou75(logits, semseg), **kwargs)
-        self.log('val_iou85', self.val_iou85(logits, semseg), **kwargs)
-        self.log('val_iou95', self.val_iou95(logits, semseg), **kwargs)
+        self.log('val_iou55', self.iou55(logits, semseg), **kwargs)
+        self.log('val_iou65', self.iou65(logits, semseg), **kwargs)
+        self.log('val_iou75', self.iou75(logits, semseg), **kwargs)
+        self.log('val_iou85', self.iou85(logits, semseg), **kwargs)
+        self.log('val_iou95', self.iou95(logits, semseg), **kwargs)
 
 
 
