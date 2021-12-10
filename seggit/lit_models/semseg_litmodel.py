@@ -2,6 +2,7 @@
 import torch
 import albumentations as albu
 import pytorch_lightning as pl
+import segmentation_model_pytorch as smp
 
 from seggit.lit_models.losses import SemSegLoss
 
