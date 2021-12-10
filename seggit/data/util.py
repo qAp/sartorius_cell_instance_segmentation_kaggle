@@ -11,6 +11,10 @@ from seggit.data.config import DIR_BASE, DIR_MASK, DIR_DTFM
 from seggit.data.config import WATERSHED_ENERGY_BINS
 
 
+# Computed with data/scripts/compute_image_mean_std.py
+MEAN_IMAGE = 127.96482849121094 
+STD_IMAGE = 13.235036849975586
+
 def print_info(a):
     info = (a.dtype, a.shape, a.min(), a.mean(), a.max())
     print(info)
