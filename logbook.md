@@ -87,6 +87,16 @@ A guess after reviewing the masks of several samples is that the "touching borde
 
 The amount of dilation will likely affect how finely the model can segment the cells.  Given some cells are very small in this competition, a dilation that's too large probably won't work too well, because the overlap area taken away will be comparable to the size of the cells.  
 
+## 2021-12-11
+Finished coding up the lightning datamodule for 2/3-channel semantic segmentation. 
+
+Two samples have been identified, which have overlap area larger than cell area, as if the normal cell and overlap channels have been switched:
+<img src="images/repeatedly_annotated_sample_overlaps.png" width=900>
+
+It might be that these images have been annotated twice.  Notice that many cells have two almost identical borders drawn over them. Different annotations on the same cell obviously have a lot of overlap:
+<img src="images/repeatedly_annotated_sample_borders.png" width=900>
+
+These samples are simply dropped from the Dataset.  The k-folds are not re-generated, because there are only two such samples.
 
 
 
