@@ -12,6 +12,12 @@ DIR_DTFM = '/kaggle/input/sardata-distance-transform/distance_transform'
 DIR_UVEC = '/kaggle/input/sardata-uvec/uvec'
 DIR_ENERGY = '/kaggle/input/sardata-watershed-energy/watershed_energy'
 
+
+# Computed with data/scripts/compute_image_mean_std.py
+MEAN_IMAGE = 127.96482849121094
+STD_IMAGE = 13.235036849975586
+
+
 # Generated with data.util.define_watershed_energy_bins()
 WATERSHED_ENERGY_BINS = np.array(
     [0.955,  1.369,  1.91,  2.324,  2.739,  3.279,  3.694,  4.108,
