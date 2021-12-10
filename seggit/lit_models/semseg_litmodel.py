@@ -31,6 +31,8 @@ class SemSegLitModel(pl.LightningModule):
     @staticmethod
     def add_argparse_args(parser):
         add = parser.add_argument
+        add('--lr', type=float, default=LR)
+        add('--optimizer', type=str, default=OPTIMIZER)
         add('--arch', type=str, default=ARCH)
         add('--encoder_name', type=str, default=ENCODER_NAME)
         return parser
