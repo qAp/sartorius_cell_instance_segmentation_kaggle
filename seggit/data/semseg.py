@@ -11,7 +11,7 @@ from skimage.morphology import erosion, dilation, square
 from seggit.data.config import DIR_BASE, DIR_KFOLD, DIR_IMG, DIR_SEMSEG
 from seggit.data.config import MEAN_IMAGE, STD_IMAGE, BAD_SAMPLES
 from seggit.data.util import rle_decode 
-from seggit.data.transforms import default_tfms
+from seggit.data.transforms import default_tfms, aug_tfms
 
 
 
@@ -111,7 +111,10 @@ class SemSeg(pl.LightningDataModule):
         self.on_gpu = isinstance(self.args.get('gpus', None), (str, int))
 
         self.use_softmax = self.args.get('use_softmax', False)
-        self.transform = albu.Compose(default_tfms(self.image_size))
+        self.aug = self.args.get('aug', False)
+
+        _tfms = aug_tfms if self.aug else default_tfms
+        self.transform = albu.Compose(_tfms(self.image_size))
 
         self.input_dims = (self.image_size, self.image_size, 3)
         self.output_dims = (self.image_size, self.image_size, 
@@ -128,6 +131,7 @@ class SemSeg(pl.LightningDataModule):
         add('--batch_size', type=int, default=BATCH_SIZE)
         add('--num_workers', type=int, default=NUM_WORKERS)
         add('--use_softmax', action='store_true', default=False)
+        add('--aug', action='store_true', default=False)
         return parser
 
     def config(self):

@@ -1,8 +1,13 @@
 
 import albumentations as albu
 
-
 def default_tfms(image_size):
+    return [
+        albu.RandomCrop(height=image_size, width=image_size, 
+                        always_apply=True),
+    ]
+
+def aug_tfms(image_size):
     return [
         albu.HorizontalFlip(p=0.5),
         albu.ShiftScaleRotate(shift_limit=0.2,
