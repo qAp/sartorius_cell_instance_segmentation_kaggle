@@ -226,5 +226,26 @@ def _generate_watershed_energy(args):
 
     return imgid
 
+def find_samples_overlap_gt_cell():
+    '''
+    Find the samples whose overlap area is greater than
+    cell area.  These look like the cells have been
+    annotated twice.  The overlap area between successive
+    annotations is obviously large.  Wouldn't make sense 
+    to use these for training.
+    '''
+    overlap_large_list = []
+
+    for fn in tqdm(os.listdir(DIR_SEMSEG)):
+        semseg = cv2.imread(f'{DIR_SEMSEG}/{fn}')
+        semseg = semseg.astype(np.float32)
+        semseg = semseg / 255
+        semseg = semseg == 1
+        area_cell = semseg[..., 0].sum()
+        area_overlap = semseg[..., 1].sum()
+        if area_overlap > area_cell:
+            overlap_large_list.append(fn)
+
+    return overlap_large_list
 
 
