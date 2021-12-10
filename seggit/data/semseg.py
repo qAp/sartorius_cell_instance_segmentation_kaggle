@@ -113,6 +113,10 @@ class SemSeg(pl.LightningDataModule):
         self.use_softmax = self.args.get('use_softmax', False)
         self.transform = albu.Compose(default_tfms(self.image_size))
 
+        self.input_dims = (self.image_size, self.image_size, 3)
+        self.output_dims = (self.image_size, self.image_size, 
+                            3 if self.use_softmax else 2)
+
         self.train_ds: SemSegDataset
         self.valid_ds: SemSegDataset
 
@@ -125,6 +129,10 @@ class SemSeg(pl.LightningDataModule):
         add('--num_workers', type=int, default=NUM_WORKERS)
         add('--use_softmax', action='store_true', default=False)
         return parser
+
+    def config(self):
+        return {'input_dims': self.input_dims, 
+                'output_dims': self.output_dims}
 
     def prepare_data(self):
         assert os.path.exists(DIR_KFOLD), (
