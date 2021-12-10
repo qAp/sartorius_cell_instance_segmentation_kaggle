@@ -24,7 +24,6 @@ class SemSegLitModel(pl.LightningModule):
         self.lr = self.args.get('lr', LR)
         optimizer = self.args.get('optimizer', OPTIMIZER)
         self.optimizer = getattr(torch.optim, optimizer)
-        self.one_cycle_max_lr = self.args.get('one_cycle_max_lr', None)
 
     def forward(self, x):
         return self.model(x)
@@ -38,15 +37,7 @@ class SemSegLitModel(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = self.optimizer(self.parameters(), lr=self.lr)
-
-        if self.one_cycle_max_lr is None:
-            return optimizer
-
-        lr_scheduler = torch.optim.lr_scheduler.OneCycleLR(
-            optimizer,
-            max_lr=self.one_cycle_max_lr,
-            total_steps=self.one_cycle_total_steps)
-        return {'optimizer': optimizer, 'lr_scheduler': lr_scheduler}
+        return optimizer
 
     def training_step(self, batch, batch_idx):
         img, semseg = batch
