@@ -146,7 +146,7 @@ class SemSeg(pl.LightningDataModule):
 
     def setup(self):
         train_df = pd.read_csv(f'{DIR_KFOLD}/train_fold{self.fold}.csv')
-        valid_df = pd.read_csv(f'{DIR_KFOLD}/valid_fold{self.fold.csv}')
+        valid_df = pd.read_csv(f'{DIR_KFOLD}/valid_fold{self.fold}.csv')
 
         self.train_ds = SemSegDataset(train_df, self.transform, self.use_softmax)
         self.valid_ds = SemSegDataset(valid_df, self.transform, self.use_softmax)
