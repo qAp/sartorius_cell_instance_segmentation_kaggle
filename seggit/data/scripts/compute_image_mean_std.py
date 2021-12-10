@@ -1,4 +1,6 @@
-
+'''
+Compute the competition images' mean and std.
+'''
 
 import os, sys
 from tqdm.auto import tqdm
