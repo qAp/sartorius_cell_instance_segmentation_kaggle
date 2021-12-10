@@ -111,7 +111,7 @@ class SemSeg(pl.LightningDataModule):
         self.on_gpu = isinstance(self.args.get('gpus', None), (str, int))
 
         self.use_softmax = self.args.get('use_softmax', False)
-        self.transform = albu.Compose(_default_tfms(self.image_size))
+        self.transform = albu.Compose(default_tfms(self.image_size))
 
         self.train_ds: SemSegDataset
         self.valid_ds: SemSegDataset
