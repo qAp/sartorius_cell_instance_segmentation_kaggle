@@ -98,6 +98,10 @@ It might be that these images have been annotated twice.  Notice that many cells
 
 These samples are simply dropped from the Dataset.  The k-folds are not re-generated, because there are only two such samples.
 
+In the context of semantic segmentation, the IOU metric's threshold value is the probability value above which a pixel is classified as true.  It's not the overlap between a cell's predicted mask and its ground truth mask, above which the prediction is considered true positive.  
+
+Need to correct k-fold generation!
+
 
 
 
