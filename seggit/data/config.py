@@ -22,3 +22,7 @@ STD_IMAGE = 13.235036849975586
 WATERSHED_ENERGY_BINS = np.array(
     [0.955,  1.369,  1.91,  2.324,  2.739,  3.279,  3.694,  4.108,
      4.649,  5.063,  5.477,  6.018, 10., 20., 40., 80.])
+
+BAD_SAMPLES = [
+    'ce5d0de993bd', 'a9fc5e872671', # overlap area > cell area (repeated annotations)
+    ]
