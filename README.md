@@ -40,6 +40,7 @@ https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 - [@hengck23 [placeholder] my approach and results](https://www.kaggle.com/c/sartorius-cell-instance-segmentation/discussion/285516)
 - [Deep Watershed Transform for Instance Segmentation](https://arxiv.org/pdf/1611.08303.pdf)
 - https://github.com/min2209/dwt
+- Segmentation Models Pytorch https://github.com/qubvel/segmentation_models.pytorch
 - https://en.wikipedia.org/wiki/Distance_transform
 - https://stackoverflow.com/questions/61716670/distance-transform-the-function-does-not-work-properly
 - https://stackoverflow.com/questions/61204462/error-in-function-distancetransform-python-using-opencv-3-4-9
