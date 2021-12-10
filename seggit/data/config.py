@@ -5,6 +5,7 @@ __all__ = ['DIR_BASE', 'DIR_KFOLD', 'DIR_IMG', 'DIR_MASK']
 DIR_BASE = '/kaggle/input/sartorius-cell-instance-segmentation/'
 DIR_KFOLD = '/kaggle/input/sardata-kfold/kfold'
 DIR_IMG = f'{DIR_BASE}/train'
+DIR_SEMSEG = '/kaggle/input/sardata-train-mask/semseg_wdilate2'
 DIR_MASK = '/kaggle/input/sardata-train-mask/train_mask'
 DIR_AREA = '/kaggle/input/sardata-instance-area/instance_area'
 DIR_DTFM = '/kaggle/input/sardata-distance-transform/distance_transform'
