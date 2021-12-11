@@ -102,6 +102,17 @@ In the context of semantic segmentation, the IOU metric's threshold value is the
 
 Need to correct k-fold generation!
 
+## 2021-12-12
+Sample ground truth and prediction after ~400 epochs of training for cell nuclei and touching borders:
+
+<img src="images/after_400epochs_cell_and_border_training.png" width=900>
+
+The metric iou@0.95 has reached about 0.9.  It still looks as if many cells are stuck together. 
+
+Things to do:
+- [ ] Subtract "touch borders" channel from "cell nuclei" channel to get the final output semantic segmentation?
+- [ ] Based on this Unet, train the DN and WTN, finalising their architectures and loss functions.
+- [ ] Complete the post-processing to get instance segments.
 
 
 
