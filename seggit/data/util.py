@@ -7,7 +7,8 @@ import numpy as np
 import pandas as pd
 import cv2
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
-from seggit.data.config import DIR_BASE, DIR_MASK, DIR_DTFM
+from seggit.data.config import DIR_BASE, DIR_KFOLD, DIR_MASK, DIR_DTFM
+from seggit.data.config import BAD_SAMPLES
 from seggit.data.config import WATERSHED_ENERGY_BINS
 
 
@@ -18,32 +19,38 @@ def print_info(a):
     print(info)
 
 
-def generate_kfold(dir_kfold='/kaggle/working/kfold'):
+def generate_kfold(n_folds=3, dir_kfold='/kaggle/working/kfold'):
 
-    df = pd.read_csv(f'{DIR_BASE}/train.csv')
-    X = df.values
-    y = df[['cell_type', 'plate_time', 'sample_date', 'sample_id']].values
+    train = pd.read_csv(f'{DIR_BASE}/train.csv')
 
-    n_splits = 5
+    df = (
+        train[['id', 'cell_type', 'plate_time', 'sample_date', 'sample_id']]
+        .groupby('id')
+        .first()
+    )
+    df['num_cells'] = train.groupby('id')['annotation'].nunique()
+    df.drop(BAD_SAMPLES, axis=0, inplace=True)
+    df.reset_index(inplace=True)
+
     kf = MultilabelStratifiedKFold(
-        n_splits=n_splits, shuffle=True, random_state=100)
+        n_splits=n_folds, shuffle=True, random_state=100)
+
+    X = df[['id']]
+    y = df[
+        df.columns[df.columns != 'id']
+    ]
 
     train_indices_list = []
     valid_indices_list = []
-    for train_indices, valid_indices in kf.split(X, y):
+    for train_indices, valid_indices in kf.split(X.values, y.values):
         train_indices_list.append(train_indices)
         valid_indices_list.append(valid_indices)
 
     os.makedirs(dir_kfold, exist_ok=True)
-    for i in range(n_splits):
+
+    for i in range(n_folds):
         train_df = df.loc[train_indices_list[i]]
         valid_df = df.loc[valid_indices_list[i]]
-
-        if i == 0:
-            print('Train')
-            print(train_df['cell_type'].value_counts())
-            print('Valid')
-            print(valid_df['cell_type'].value_counts())
 
         train_df.to_csv(f'{dir_kfold}/train_fold{i}.csv', index=False)
         valid_df.to_csv(f'{dir_kfold}/valid_fold{i}.csv', index=False)
