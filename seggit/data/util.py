@@ -82,6 +82,95 @@ def rle_decode(mask_rle, shape, color=1):
     return img.reshape(shape)
 
 
+def annotation_to_semg(annotation, image_height=520, image_width=704):
+    '''
+    Convert RLE to semantic segmentation
+
+    Args:
+        annotation (str): Run-length encoding string 
+            from train.csv
+
+    Returns:
+        semg (np.array, np.float32): Semantic segmentation
+            Shape (H, W, 1). Values 0, or 1. 
+    '''
+    semg = rle_decode(annotation, (image_height, image_width, 1))
+
+    return semg
+
+
+def semg_to_dtfm(semg):
+    '''
+    Convert semantic segmentation to distance transform.
+
+    Args:
+        semg (np.array, np.float32): Semantic segmentation.
+            Shape (H, W, 1). Values 0, or 1.
+    
+    Returns:
+        dtfm (np.array, np.float32): Distance transform.
+            Shape (H, W, 1). 
+    '''
+    dtfm = cv2.distanceTransform(semg.astype(np.uint8),
+                                 distanceType=cv2.DIST_L2,
+                                 maskSize=3)
+    dtfm = dtfm[..., None]
+
+    return dtfm
+
+
+def semg_to_area(semg):
+    '''
+    Convert semantic segmentation to area.
+
+    Args:
+        semg (np.array, np.float32): Semantic segmentation.
+            Shape (H, W, 1). Values 0, or 1.
+
+    Returns:
+        area (np.array, np.float32): Masked area.
+            Shape (H, W, 1). 
+    '''
+    area = np.zeros_like(semg)
+    area[semg.astype(np.bool)] = semg.sum()
+
+    return area
+
+
+def dtfm_to_uvec(dtfm):
+    '''
+    Distance transform to normalised gradient distance transform
+
+    Args:
+         dtfm (np.array, np.float32): Distance transform.
+            Shape (H, W, 1). 
+    Returns:
+        uvec (np.array, np.float32): uvec
+            Shape (H, W, 2).
+    '''
+    grad_dtfm = np.stack(np.gradient(dtfm[..., 0]), axis=2)
+    norm = np.linalg.norm(grad_dtfm, axis=2, keepdims=True)
+    uvec = np.nan_to_num(grad_dtfm / norm)
+
+    return uvec
+
+
+def dtfm_to_wngy(dtfm):
+    '''
+    Distance transform to watershed energy.
+
+    Args:
+        dtfm (np.array, np.float32): Distance transform.
+            Shape (H, W, 1). 
+    Returns:
+        wngy (np.array, np.int64): Watershed energy levels map.
+            Shape (H, W, 1).
+    '''
+    wngy = np.digitize(dtfm, bins=WATERSHED_ENERGY_BINS)
+
+    return wngy
+
+
 def _generate_mask(args):
     train, imgid, dir_mask = args
 
@@ -139,7 +228,7 @@ def _generate_distance_transform(args):
     imgid, dir_dtfm = args
 
     mask = cv2.imread(f'{DIR_MASK}/{imgid}.png')
-    mask = mask[..., 0]  # (height, width), (0, 1), np.uint8
+    mask = mask[..., 0]  # (height, width), {0, 1}, np.uint8
     dtfm = cv2.distanceTransform(src=mask, 
                                  distanceType=cv2.DIST_L2, 
                                  maskSize=3)  # (height, width), np.float32
