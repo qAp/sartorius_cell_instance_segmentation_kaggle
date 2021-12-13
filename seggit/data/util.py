@@ -6,6 +6,7 @@ import multiprocessing
 import numpy as np
 import pandas as pd
 import cv2
+from skimage.morphology import square, dilation
 from iterstrat.ml_stratifiers import MultilabelStratifiedKFold
 from seggit.data.config import DIR_BASE, DIR_KFOLD, DIR_MASK, DIR_DTFM
 from seggit.data.config import BAD_SAMPLES
@@ -169,6 +170,33 @@ def dtfm_to_wngy(dtfm):
     wngy = np.digitize(dtfm, bins=WATERSHED_ENERGY_BINS)
 
     return wngy
+
+
+def get_semg_multicell(df, image_height=520, image_width=704, square_width=5):
+    '''
+    Semantic segmentation with overlap border
+    '''
+    df = df.sort_values('cell_area', axis=0, ascending=False)
+
+    semg = np.zeros((image_height, image_width, 1), dtype=np.bool)
+    for cell in df.itertuples():
+
+        semg_cell = annotation_to_semg(
+            cell.annotation, image_height, image_width)
+        semg_cell = semg_cell.astype(np.bool)
+
+        dilated_semg_cell = dilation(semg_cell[..., 0],
+                                     selem=square(square_width), )
+        dilated_semg_cell = dilated_semg_cell[..., None]
+
+        border_semg_cell = dilated_semg_cell ^ semg_cell
+
+        semg = semg | dilated_semg_cell
+        semg = semg ^ border_semg_cell
+
+    semg = semg.astype(np.float32)
+
+    return semg
 
 
 def _generate_mask(args):
