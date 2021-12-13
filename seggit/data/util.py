@@ -187,21 +187,6 @@ def get_semg_multicell(df, image_height=520, image_width=704, square_width=5):
     return mass, border
 
 
-def _generate_mask(args):
-    train, imgid, dir_mask = args
-
-    img = cv2.imread(f'{DIR_BASE}/train/{imgid}.png')
-
-    mask_shape = img.shape[:2] + (1,)
-    mask = np.zeros(mask_shape, dtype=np.float32)
-    for cell in train[train['id'] == imgid].itertuples():
-        mask = mask + rle_decode(cell.annotation, mask_shape)
-
-    mask[mask > 1] = 0
-
-    write_status = cv2.imwrite(f'{dir_mask}/{imgid}.png', mask)
-    return imgid, write_status
-
 
 def _generate_instance_area(args):
     train, imgid, dir_area = args
@@ -337,6 +322,7 @@ def _generate_watershed_energy(args):
     np.save(f'{dir_energy}/{imgid}', energy)
 
     return imgid
+
 
 def find_samples_overlap_gt_cell():
     '''
