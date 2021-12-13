@@ -1,5 +1,6 @@
 
 import torch
+from torch.optim.lr_scheduler import StepLR
 import albumentations as albu
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
@@ -11,6 +12,7 @@ ARCH = 'Unet'
 ENCODER_NAME = 'resnet34'
 LR = 1e-4
 OPTIMIZER = 'Adam'
+STEP_LR_GAMMA = None
 
 
 class SemSegLitModel(pl.LightningModule):
@@ -26,9 +28,10 @@ class SemSegLitModel(pl.LightningModule):
         self.iou85 = smp.utils.metrics.IoU(threshold=0.85)
         self.iou95 = smp.utils.metrics.IoU(threshold=0.95)
 
-        self.lr = self.args.get('lr', LR)
         optimizer = self.args.get('optimizer', OPTIMIZER)
         self.optimizer = getattr(torch.optim, optimizer)
+        self.lr = self.args.get('lr', LR)
+        self.step_lr_gamma = self.args.get('step_lr_gamma', STEP_LR_GAMMA)
 
     def forward(self, x):
         return self.model(x)
@@ -36,15 +39,23 @@ class SemSegLitModel(pl.LightningModule):
     @staticmethod
     def add_argparse_args(parser):
         add = parser.add_argument
-        add('--lr', type=float, default=LR)
-        add('--optimizer', type=str, default=OPTIMIZER)
         add('--arch', type=str, default=ARCH)
         add('--encoder_name', type=str, default=ENCODER_NAME)
+        add('--optimizer', type=str, default=OPTIMIZER)
+        add('--lr', type=float, default=LR)
+        add('--step_lr_gamma', type=float, default=STEP_LR_GAMMA)
         return parser
 
     def configure_optimizers(self):
-        optimizer = self.optimizer(self.parameters(), lr=self.lr)
-        return optimizer
+        if self.step_lr_gamma:
+            optimizer = self.optimizer(self.parameters(), lr=self.lr)
+            lr_scheduler = StepLR(optimizer, 
+                                  step_size=30, 
+                                  gamma=self.step_lr_gamma)
+            return {'optimizer': optimizer, 'lr_scheduler': lr_scheduler}
+        else:
+            optimizer = self.optimizer(self.parameters(), lr=self.lr)
+            return optimizer
 
     def training_step(self, batch, batch_idx):
         img, semseg = batch
