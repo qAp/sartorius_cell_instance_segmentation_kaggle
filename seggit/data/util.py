@@ -120,24 +120,6 @@ def semg_to_dtfm(semg):
     return dtfm
 
 
-def semg_to_area(semg):
-    '''
-    Convert semantic segmentation to area.
-
-    Args:
-        semg (np.array, np.float32): Semantic segmentation.
-            Shape (H, W, 1). Values 0, or 1.
-
-    Returns:
-        area (np.array, np.float32): Masked area.
-            Shape (H, W, 1). 
-    '''
-    area = np.zeros_like(semg)
-    area[semg.astype(np.bool)] = semg.sum()
-
-    return area
-
-
 def dtfm_to_uvec(dtfm):
     '''
     Distance transform to normalised gradient distance transform
