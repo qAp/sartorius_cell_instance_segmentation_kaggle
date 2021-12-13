@@ -160,25 +160,31 @@ def get_semg_multicell(df, image_height=520, image_width=704, square_width=5):
     '''
     df = df.sort_values('cell_area', axis=0, ascending=False)
 
-    semg = np.zeros((image_height, image_width, 1), dtype=np.bool)
-    for cell in df.itertuples():
+    mass = np.zeros((image_height, image_width, 1), dtype=np.bool)
+    border = np.zeros((image_height, image_width, 1), dtype=np.bool)
 
-        semg_cell = annotation_to_semg(
-            cell.annotation, image_height, image_width)
-        semg_cell = semg_cell.astype(np.bool)
+    for r in df.itertuples():
 
-        dilated_semg_cell = dilation(semg_cell[..., 0],
-                                     selem=square(square_width), )
-        dilated_semg_cell = dilated_semg_cell[..., None]
+        cell = annotation_to_semg(r.annotation, image_height, image_width)
+        cell = cell.astype(np.bool)
 
-        border_semg_cell = dilated_semg_cell ^ semg_cell
+        celll = dilation(cell[..., 0], selem=square(square_width))
+        celll = celll[..., None]
 
-        semg = semg | dilated_semg_cell
-        semg = semg ^ border_semg_cell
+        wall = celll ^ cell
 
-    semg = semg.astype(np.float32)
+        inter_mw = mass & wall
+        inter_bw = border & wall
+        border[celll] = False
+        border = border | inter_mw | inter_bw
 
-    return semg
+        union_mc = mass | celll
+        mass = union_mc ^ wall
+
+    mass = mass.astype(np.float32)
+    border = border.astype(np.float32)
+
+    return mass, border
 
 
 def _generate_mask(args):
