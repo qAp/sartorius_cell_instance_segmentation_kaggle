@@ -166,9 +166,9 @@ class DirectionNet(nn.Module):
 
 
 class DirectionNetMock(nn.Module):
-    def __init__(self, params, pretrained_vgg16=False):
+    def __init__(self, params=None, pretrained_vgg16=False):
         super().__init__()
-        self.params = params
+        self.params = net_params() if params is None else params
         self.pretrained_vgg16 = pretrained_vgg16
 
         self.conv1_1 = self._conv_layer(self.params['direction/conv1_1'])
