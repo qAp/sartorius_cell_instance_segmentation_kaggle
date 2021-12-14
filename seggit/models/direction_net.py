@@ -1,6 +1,7 @@
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torchvision
 
 
@@ -162,3 +163,131 @@ class DirectionNet(nn.Module):
         x = nn.Upsample(input_size)(x)
 
         return x
+
+
+class DirectionNetMock(nn.Module):
+    def __init__(self, params):
+        super().__init__()
+        self.params = params
+
+        self.conv1_1 = self._conv_layer(self.params['direction/conv1_1'])
+        self.conv1_2 = self._conv_layer(self.params['direction/conv1_2'])
+        self.pool1 = self._max_pool()
+
+        self.conv2_1 = self._conv_layer(self.params['direction/conv2_1'])
+        self.conv2_2 = self._conv_layer(self.params['direction/conv2_2'])
+        self.pool2 = self._max_pool()
+
+        self.conv3_1 = self._conv_layer(self.params['direction/conv3_1'])
+        self.conv3_2 = self._conv_layer(self.params['direction/conv3_2'])
+        self.conv3_3 = self._conv_layer(self.params['direction/conv3_3'])
+        self.pool3 = self._avg_pool()
+
+        self.conv4_1 = self._conv_layer(self.params['direction/conv4_1'])
+        self.conv4_2 = self._conv_layer(self.params['direction/conv4_2'])
+        self.conv4_3 = self._conv_layer(self.params['direction/conv4_3'])
+        self.pool4 = self._avg_pool()
+
+        self.conv5_1 = self._conv_layer(self.params['direction/conv5_1'])
+        self.conv5_2 = self._conv_layer(self.params['direction/conv5_2'])
+        self.conv5_3 = self._conv_layer(self.params['direction/conv5_3'])
+
+        self.fcn5_1 = self._conv_layer(self.params['direction/fcn5_1'])
+        self.fcn5_2 = self._conv_layer(self.params['direction/fcn5_2'])
+        self.fcn5_3 = self._conv_layer(self.params['direction/fcn5_3'])
+
+        self.fcn4_1 = self._conv_layer(self.params['direction/fcn4_1'])
+        self.fcn4_2 = self._conv_layer(self.params['direction/fcn4_2'])
+        self.fcn4_3 = self._conv_layer(self.params['direction/fcn4_3'])
+
+        self.fcn3_1 = self._conv_layer(self.params['direction/fcn3_1'])
+        self.fcn3_2 = self._conv_layer(self.params['direction/fcn3_2'])
+        self.fcn3_3 = self._conv_layer(self.params['direction/fcn3_3'])
+
+        self.upscore5_3 = self._upscore_layer(
+            self.params['direction/upscore5_3'])  # 4x
+        self.upscore4_3 = self._upscore_layer(
+            self.params['direction/upscore4_3'])  # 2x
+
+        self.fuse3_1 = self._conv_layer(self.params['direction/fuse3_1'])
+        self.fuse3_2 = self._conv_layer(self.params['direction/fuse3_2'])
+        self.fuse3_3 = self._conv_layer(self.params['direction/fuse3_3'])
+
+        self.upscore_layer = self._upscore_layer(
+            self.params['direction/upscore3_1'])  # 4x
+
+    def forward(self, x):
+        x = self.conv1_1(x)
+        x = self.conv1_2(x)
+        x = self.pool1(x)
+
+        x = self.conv2_1(x)
+        x = self.conv2_2(x)
+        x = self.pool2(x)
+
+        x = self.conv3_1(x)
+        x = self.conv3_2(x)
+        conv3_3 = self.conv3_3(x)
+        x = self.pool3(conv3_3)
+
+        x = self.conv4_1(x)
+        x = self.conv4_2(x)
+        conv4_3 = self.conv4_3(x)
+        x = self.pool4(conv4_3)
+
+        x = self.conv5_1(x)
+        x = self.conv5_2(x)
+        conv5_3 = self.conv5_3(x)
+
+        fcn5_1 = self.fcn5_1(conv5_3)
+        fcn5_2 = self.fcn5_2(fcn5_1)
+        fcn5_3 = self.fcn5_3(fcn5_2)
+
+        fcn4_1 = self.fcn4_1(conv4_3)
+        fcn4_2 = self.fcn4_2(fcn4_1)
+        fcn4_3 = self.fcn4_3(fcn4_2)
+
+        fcn3_1 = self.fcn3_1(conv3_3)
+        fcn3_2 = self.fcn3_2(fcn3_1)
+        fcn3_3 = self.fcn3_3(fcn3_2)
+
+        upscore5_3 = self.upscore5_3(fcn5_3)
+        upscore4_3 = self.upscore4_3(fcn4_3)
+
+        fuse3 = torch.cat([fcn3_3, upscore4_3, upscore5_3], dim=1)
+
+        x = self.fuse3_1(fuse3)
+        x = self.fuse3_2(x)
+        x = self.fuse3_3(x)
+
+        x = self.upscore_layer(x)
+        # TODO: Gate with `ss`
+
+        x = F.normalize(x, dim=1)
+        return x
+
+    def _conv_layer(self, params):
+        kernel_height, kernel_width, in_channels, out_channels = params['shape']
+        conv = nn.Conv2d(in_channels, out_channels,
+                         kernel_size=(kernel_height, kernel_width),
+                         stride=1, padding='same')
+
+        if params['act'] == 'relu':
+            return nn.Sequential(conv, nn.ReLU(inplace=True))
+        elif params['act'] == 'lin':
+            return conv
+
+    def _max_pool(self):
+        return nn.MaxPool2d(kernel_size=2, stride=2)
+
+    def _avg_pool(self, ):
+        return nn.AvgPool2d(kernel_size=2, stride=2)
+
+    def _upscore_layer(self, params):
+        deconv = nn.ConvTranspose2d(in_channels=params['outputChannels'],
+                                    out_channels=params['outputChannels'],
+                                    kernel_size=params['ksize'],
+                                    stride=params['stride'],
+                                    padding=params['padding']
+                                    )
+        return deconv
