@@ -232,7 +232,7 @@ class DirectionNetMock(nn.Module):
                 conv_dn.weight.data = conv_vgg.weight.data
                 conv_dn.bias.data = conv_vgg.bias.data
 
-    def vgg16_mapping():
+    def vgg16_mapping(self):
         return {'conv1_2': 2,
                 'conv2_1': 5, 'conv2_2': 7,
                 'conv3_1': 10, 'conv3_2': 12, 'conv3_3': 14,
