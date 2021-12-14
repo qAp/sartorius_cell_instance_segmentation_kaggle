@@ -11,7 +11,7 @@ def aug_tfms(image_size):
     return [
         albu.HorizontalFlip(p=0.5),
         albu.ShiftScaleRotate(shift_limit=0.,
-                              scale_limit=0.3,
+                              scale_limit=0.9,
                               rotate_limit=45,
                               p=.7,
                               border_mode=0),
