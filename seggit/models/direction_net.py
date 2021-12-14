@@ -166,9 +166,10 @@ class DirectionNet(nn.Module):
 
 
 class DirectionNetMock(nn.Module):
-    def __init__(self, params):
+    def __init__(self, params, pretrained_vgg16=False):
         super().__init__()
         self.params = params
+        self.pretrained_vgg16 = pretrained_vgg16
 
         self.conv1_1 = self._conv_layer(self.params['direction/conv1_1'])
         self.conv1_2 = self._conv_layer(self.params['direction/conv1_2'])
@@ -215,6 +216,28 @@ class DirectionNetMock(nn.Module):
 
         self.upscore_layer = self._upscore_layer(
             self.params['direction/upscore3_1'])  # 4x
+
+        self.init_model_parameters(self)
+
+    def init_model_parameters(self):
+        if self.pretrained_vgg16:
+            vgg16 = torchvision.models.vgg16(pretrained=True).features
+
+            for ldn, lvgg in self.vgg16_mapping().items():
+                conv_dn = getattr(self, ldn)[0]
+                conv_vgg = vgg16[lvgg]
+                assert conv_dn.weight.shape == conv_vgg.weight.shape
+                assert conv_dn.bias.shape == conv_vgg.bias.shape
+
+                conv_dn.weight.data = conv_vgg.weight.data
+                conv_dn.bias.data = conv_vgg.bias.data
+
+    def vgg16_mapping():
+        return {'conv1_2': 2,
+                'conv2_1': 5, 'conv2_2': 7,
+                'conv3_1': 10, 'conv3_2': 12, 'conv3_3': 14,
+                'conv4_1': 17, 'conv4_2': 19, 'conv4_3': 21,
+                'conv5_1': 24, 'conv5_2': 26, 'conv5_3': 28}   
 
     def forward(self, x):
         x = self.conv1_1(x)
