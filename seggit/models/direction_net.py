@@ -220,8 +220,8 @@ class DirectionNetMock(nn.Module):
         self.init_model_parameters()
 
     def init_model_parameters(self):
-        nn.init.xavier_normal_(self.fcn4_3[0].weight, gain=3)
-        nn.init.xavier_normal_(self.fcn5_3[0].weight, gain=8)
+        # nn.init.xavier_normal_(self.fcn4_3[0].weight, gain=3)
+        # nn.init.xavier_normal_(self.fcn5_3[0].weight, gain=8)
 
         if self.pretrained_vgg16:
             vgg16 = torchvision.models.vgg16(pretrained=True).features
