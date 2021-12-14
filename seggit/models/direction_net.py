@@ -217,7 +217,7 @@ class DirectionNetMock(nn.Module):
         self.upscore_layer = self._upscore_layer(
             self.params['direction/upscore3_1'])  # 4x
 
-        self.init_model_parameters(self)
+        self.init_model_parameters()
 
     def init_model_parameters(self):
         if self.pretrained_vgg16:
