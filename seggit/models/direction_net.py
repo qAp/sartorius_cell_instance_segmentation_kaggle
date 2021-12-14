@@ -36,6 +36,7 @@ def net_params():
               "direction/fuse3_2": {"name": "direction/fuse_2", "shape": [1, 1, 512, 512], "std": None, "act": "relu"},
               "direction/fuse3_3": {"name": "direction/fuse_3", "shape": [1, 1, 512, outputChannels], "std": None, "act": "lin"},
               "direction/upscore3_1": {"name": "direction/upscore3_1", "ksize": 8, "stride": 4, "outputChannels": outputChannels}}
+    return params
 
 
 def max_to_avgpool(m):
