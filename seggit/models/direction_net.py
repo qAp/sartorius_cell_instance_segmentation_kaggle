@@ -220,9 +220,6 @@ class DirectionNetMock(nn.Module):
         self.init_model_parameters()
 
     def init_model_parameters(self):
-        # nn.init.xavier_normal_(self.fcn4_3[0].weight, gain=3)
-        # nn.init.xavier_normal_(self.fcn5_3[0].weight, gain=8)
-
         if self.pretrained_vgg16:
             vgg16 = torchvision.models.vgg16(pretrained=True).features
 
@@ -254,19 +251,16 @@ class DirectionNetMock(nn.Module):
         x = self.conv3_1(x)
         x = self.conv3_2(x)
         conv3_3 = self.conv3_3(x)
-        print(f'conv3_3 {conv3_3.mean():.6f} {conv3_3.std():.6f}')
         x = self.pool3(conv3_3)
 
         x = self.conv4_1(x)
         x = self.conv4_2(x)
         conv4_3 = self.conv4_3(x)
-        print(f'conv4_3 {conv4_3.mean():.6f} {conv4_3.std():.6f}')
         x = self.pool4(conv4_3)
 
         x = self.conv5_1(x)
         x = self.conv5_2(x)
         conv5_3 = self.conv5_3(x)
-        print(f'conv5_3 {conv5_3.mean():.6f} {conv5_3.std():.6f}')
 
         fcn5_1 = self.fcn5_1(conv5_3)
         fcn5_2 = self.fcn5_2(fcn5_1)
