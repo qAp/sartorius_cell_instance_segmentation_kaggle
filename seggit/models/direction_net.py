@@ -24,18 +24,18 @@ def net_params():
               "direction/fcn5_1": {"name": "direction/fcn5_1", "shape": [5, 5, 512, 512], "std": None, "act": "relu"},
               "direction/fcn5_2": {"name": "direction/fcn5_2", "shape": [1, 1, 512, 512], "std": None, "act": "relu"},
               "direction/fcn5_3": {"name": "direction/fcn5_3", "shape": [1, 1, 512, fuseChannels], "std": 1e-2, "act": "relu"},
-              "direction/upscore5_3": {"name": "direction/upscore5_3", "ksize": 8, "stride": 4, "outputChannels": fuseChannels},
+              "direction/upscore5_3": {"name": "direction/upscore5_3", "ksize": 8, "stride": 4, 'padding': 2, "outputChannels": fuseChannels},
               "direction/fcn4_1": {"name": "direction/fcn4_1", "shape": [5, 5, 512, 512], "std": None, "act": "relu"},
               "direction/fcn4_2": {"name": "direction/fcn4_2", "shape": [1, 1, 512, 512], "std": None, "act": "relu"},
               "direction/fcn4_3": {"name": "direction/fcn4_3", "shape": [1, 1, 512, fuseChannels], "std": 1e-3, "act": "relu"},
-              "direction/upscore4_3": {"name": "direction/upscore4_3", "ksize": 4, "stride": 2, "outputChannels": fuseChannels},
+              "direction/upscore4_3": {"name": "direction/upscore4_3", "ksize": 4, "stride": 2, 'padding': 1, "outputChannels": fuseChannels},
               "direction/fcn3_1": {"name": "direction/fcn3_1", "shape": [5, 5, 256, 256], "std": None, "act": "relu"},
               "direction/fcn3_2": {"name": "direction/fcn3_2", "shape": [1, 1, 256, 256], "std": None, "act": "relu"},
               "direction/fcn3_3": {"name": "direction/fcn3_3", "shape": [1, 1, 256, fuseChannels], "std": 1e-4, "act": "relu"},
               "direction/fuse3_1": {"name": "direction/fuse_1", "shape": [1, 1, fuseChannels*3, 512], "std": None, "act": "relu"},
               "direction/fuse3_2": {"name": "direction/fuse_2", "shape": [1, 1, 512, 512], "std": None, "act": "relu"},
               "direction/fuse3_3": {"name": "direction/fuse_3", "shape": [1, 1, 512, outputChannels], "std": None, "act": "lin"},
-              "direction/upscore3_1": {"name": "direction/upscore3_1", "ksize": 8, "stride": 4, "outputChannels": outputChannels}}
+              "direction/upscore3_1": {"name": "direction/upscore3_1", "ksize": 8, "stride": 4, 'padding': 2, "outputChannels": outputChannels}}
     return params
 
 
