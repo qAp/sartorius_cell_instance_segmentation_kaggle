@@ -9,7 +9,7 @@ OPTIMIZER = 'Adam'
 ONE_CYCLE_TOTAL_STEPS = 100
 
 
-class InstanceDirectionLitModel(pl.LightningModule):
+class InstanceDirectionMockLitModel(pl.LightningModule):
     def __init__(self, model, args=None):
         super().__init__()
         self.model = model
@@ -28,8 +28,8 @@ class InstanceDirectionLitModel(pl.LightningModule):
         self.train_loss = DirectionLoss()
         self.val_loss = DirectionLoss()
 
-    def forward(self, x):
-        return self.model(x)
+    def forward(self, img, semg):
+        return self.model(img, semg)
 
     @staticmethod
     def add_argparse_args(parser):
@@ -53,34 +53,30 @@ class InstanceDirectionLitModel(pl.LightningModule):
             return {'optimizer': optimizer, 'lr_scheduler': lr_scheduler}
 
     def training_step(self, batch, batch_idx):
-        img, uvec, semseg, area = batch
+        img, uvec, semg, area = batch
 
         img = img.permute(0, 3, 1, 2)
         uvec = uvec.permute(0, 3, 1, 2)
-        semseg = semseg.permute(0, 3, 1, 2)
+        semg = semg.permute(0, 3, 1, 2)
         area = area.permute(0, 3, 1, 2)
 
-        img_in = semseg * img  
+        logits = self(img, semg)
 
-        logits = self(img_in)
-
-        loss = self.train_loss(logits, uvec, semseg, area)
+        loss = self.train_loss(logits, uvec, semg, area)
 
         self.log('train_loss', loss)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        img, uvec, semseg, area = batch 
+        img, uvec, semg, area = batch 
 
         img = img.permute(0, 3, 1, 2)
         uvec = uvec.permute(0, 3, 1, 2)
-        semseg = semseg.permute(0, 3, 1, 2)
+        semg = semg.permute(0, 3, 1, 2)
         area = area.permute(0, 3, 1, 2)
 
-        img_in = semseg * img
+        logits = self(img, semg)
 
-        logits = self(img_in)
-
-        loss = self.val_loss(logits, uvec, semseg, area)
+        loss = self.val_loss(logits, uvec, semg, area)
 
         self.log('val_loss', loss, prog_bar=True)
