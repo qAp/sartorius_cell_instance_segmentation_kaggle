@@ -33,7 +33,7 @@ def _generate_semg(args):
     image_height, image_width = df[['height', 'width']].iloc[0]
 
     mass, border = get_semg_multicell(df, image_height, image_width, 
-                                      square_width=3)
+                                      square_width=5)
 
     ch2 = np.zeros_like(mass)
     semg = np.concatenate([mass, border, ch2], axis=2)
