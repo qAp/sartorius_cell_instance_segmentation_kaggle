@@ -43,6 +43,7 @@ class DirectionLoss(nn.Module):
 
         dotprod = (pred * targ).sum(dim=0, keepdims=True)
         dotprod = dotprod[mask]
+        print(dotprod.min(), dotprod.mean(), dotprod.max())
 
         instance_area = instance_area[mask]
 
@@ -51,6 +52,7 @@ class DirectionLoss(nn.Module):
                          .acos()
                          .pow(2)
                          )
+        print(angle_squared.min(), angle_squared.mean(), angle_squared.max())
 
         weights = 1 / instance_area.sqrt()
         weighted_sum = (weights * angle_squared).sum()
