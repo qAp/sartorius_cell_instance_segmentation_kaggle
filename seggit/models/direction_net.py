@@ -239,7 +239,14 @@ class DirectionNetMock(nn.Module):
                 'conv4_1': 17, 'conv4_2': 19, 'conv4_3': 21,
                 'conv5_1': 24, 'conv5_2': 26, 'conv5_3': 28}   
 
-    def forward(self, x):
+    def forward(self, img, semg):
+        '''
+        Args:
+            img (N, 1, H, W )
+            semg (N, 1, H, W)
+        '''
+        x = torch.cat([semg * img, semg], dim=1)
+
         x = self.conv1_1(x)
         x = self.conv1_2(x)
         x = self.pool1(x)
@@ -284,7 +291,8 @@ class DirectionNetMock(nn.Module):
         x = self.fuse3_3(x)
 
         x = self.upscore_layer(x)
-        # TODO: Gate with `ss`
+        
+        x = semg * x
 
         x = F.normalize(x, dim=1)
         return x
