@@ -242,7 +242,7 @@ class DirectionNetMock(nn.Module):
     def forward(self, img, semg):
         '''
         Args:
-            img (N, 1, H, W )
+            img (N, 3x1, H, W )
             semg (N, 1, H, W)
         '''
         x = torch.cat([semg * img, semg], dim=1)
@@ -291,7 +291,7 @@ class DirectionNetMock(nn.Module):
         x = self.fuse3_3(x)
 
         x = self.upscore_layer(x)
-        
+
         x = semg * x
 
         x = F.normalize(x, dim=1)
