@@ -6,7 +6,7 @@ import cv2
 import torch
 import albumentations as albu
 import pytorch_lightning as pl
-from seggit.data.config import DIR_KFOLD, DIR_IMG, DIR_SEMSEG, DIR_AREA
+from seggit.data.config import DIR_KFOLD, DIR_IMG, DIR_SEMSEG, DIR_AREA, MEAN_IMAGE, STD_IMAGE
 from seggit.data.util import semg_to_dtfm, dtfm_to_uvec
 from seggit.data.transforms import default_tfms, aug_tfms
 
@@ -46,7 +46,8 @@ class InstanceDirectionMockDataset(torch.utils.data.Dataset):
             semseg = mask[..., :3]
             area = mask[..., [3]]
 
-        img = (img / 255).astype(np.float32)
+        img = (img - MEAN_IMAGE) / STD_IMAGE
+        img = img.astype(np.float32)
 
         semg = semseg[..., [0]] / 255
         dtfm = semg_to_dtfm(semg)
