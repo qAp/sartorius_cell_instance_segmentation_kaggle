@@ -166,10 +166,14 @@ class DirectionNet(nn.Module):
 
 
 class DirectionNetMock(nn.Module):
-    def __init__(self, params=None, pretrained_vgg16=False):
+    def __init__(self, data_config=None, args=None):
         super().__init__()
-        self.params = net_params() if params is None else params
-        self.pretrained_vgg16 = pretrained_vgg16
+
+        self.args = vars(args) if args is not None else {}
+
+        self.params = net_params() 
+
+        self.pretrained_vgg16 = self.args.get('pretrained_vgg16', False)
 
         self.conv1_1 = self._conv_layer(self.params['direction/conv1_1'])
         self.conv1_2 = self._conv_layer(self.params['direction/conv1_2'])
@@ -218,6 +222,11 @@ class DirectionNetMock(nn.Module):
             self.params['direction/upscore3_1'])  # 4x
 
         self.init_model_parameters()
+
+    @staticmethod
+    def add_argparse_args(parser):
+        add = parser.add_argument
+        add('--pretrained_vgg16', action='store_true', default=False)
 
     def init_model_parameters(self):
         if self.pretrained_vgg16:

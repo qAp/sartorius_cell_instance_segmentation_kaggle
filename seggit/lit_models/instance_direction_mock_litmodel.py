@@ -10,7 +10,7 @@ ONE_CYCLE_TOTAL_STEPS = 100
 
 
 class InstanceDirectionMockLitModel(pl.LightningModule):
-    def __init__(self, model, args=None):
+    def __init__(self, model=None, args=None):
         super().__init__()
         self.model = model
         self.args = vars(args) if args is not None else {}

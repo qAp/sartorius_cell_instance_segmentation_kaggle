@@ -3,7 +3,8 @@ import argparse
 import albumentations
 import pytorch_lightning as pl
 import wandb
-from seggit.models.util import create_segmentation_model
+
+
 
 def _import_class(module_class_name):
     module_name, class_name = module_class_name.rsplit('.', 1)
@@ -18,16 +19,22 @@ def _setup_parser():
     trainer_parser._action_groups[1].title = 'Trainer Args'
     parser = argparse.ArgumentParser(add_help=False, parents=[trainer_parser])
 
-    parser.add_argument('--data_class', type=str, default='SemSeg')
-    parser.add_argument('--lit_model_class', type=str, default='SemSegLitModel')
+    parser.add_argument('--data_class', type=str, 
+                        default='InstanceDirectionMock')
+    parser.add_argument('--model_class', type='str', 
+                        default='DirectionNetMock')
+    parser.add_argument('--lit_model_class', type=str, 
+                        default='InstanceDirectionMockLitModel')
     parser.add_argument('--dir_out', type=str, default='training/logs')
     parser.add_argument('--wandb', action='store_true', default=False)
 
     args, _ = parser.parse_known_args()
     data_class = _import_class(f'seggit.data.{args.data_class}')
+    model_class = _import_class(f'seggit.models.{args.model_class}')
     lit_model_class = _import_class(
         f'seggit.lit_models.{args.lit_model_class}')
     data_class.add_argparse_args(parser)
+    model_class.add_argparse_args(parser)
     lit_model_class.add_argparse_args(parser)
 
     parser.add_argument('--help', '-h', action='help')
@@ -39,6 +46,7 @@ def main():
     args = parser.parse_args()
 
     data_class = _import_class(f'seggit.data.{args.data_class}')
+    model_class = _import_class(f'seggit.models.{args.model_class}')
     lit_model_class = _import_class(
         f'seggit.lit_models.{args.lit_model_class}')
 
@@ -46,29 +54,29 @@ def main():
     data.prepare_data()
     data.setup()
 
-    model = create_segmentation_model(data.config(), args)
+    model = model_class(data_config=data.config(), args=args)
 
-    lit_model = lit_model_class(model, args=args)
+    lit_model = lit_model_class(model=model, args=args)
 
     logger = pl.loggers.TensorBoardLogger(args.dir_out)
     
     if args.wandb:
-        project = 'sartorius_semseg'
+        project = 'sartorius_direction'
         logger = pl.loggers.WandbLogger(project=project)
         logger.watch(model)
         logger.log_hyperparams(vars(args))
 
-    early_stopping_callback = pl.callbacks.EarlyStopping(monitor='val_iou95',
-                                                         mode='max',
+    early_stopping_callback = pl.callbacks.EarlyStopping(monitor='val_loss',
+                                                         mode='min',
                                                          patience=10)
 
     model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
         filename=(
             f'fold{args.fold:d}-' +
-            'epoch{epoch:03d}-val_loss{val_loss:.3f}-val_iou95{val_iou95:.3f}'
+            'epoch{epoch:03d}-val_loss{val_loss:.3f}'
         ),
-        monitor='val_iou95',
-        mode='max',
+        monitor='val_loss',
+        mode='min',
         auto_insert_metric_name=False,
         save_last=True)
 

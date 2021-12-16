@@ -80,6 +80,9 @@ class InstanceDirectionMock(pl.LightningDataModule):
         parser.add_argument('--batch_size', type=int, default=BATCH_SIZE)
         parser.add_argument('--num_workers', type=int, default=NUM_WORKERS)
 
+    def config(self):
+        return None
+
     def prepare_data(self):
 
         assert os.path.exists(DIR_KFOLD), (
