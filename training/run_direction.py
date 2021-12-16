@@ -21,7 +21,7 @@ def _setup_parser():
 
     parser.add_argument('--data_class', type=str, 
                         default='InstanceDirectionMock')
-    parser.add_argument('--model_class', type='str', 
+    parser.add_argument('--model_class', type=str, 
                         default='DirectionNetMock')
     parser.add_argument('--lit_model_class', type=str, 
                         default='InstanceDirectionMockLitModel')
