@@ -187,30 +187,19 @@ def get_semg_multicell(df, image_height=520, image_width=704, square_width=5):
     return mass, border
 
 
+def generate_instance_area(df, image_height=520, image_width=704):
+    '''
+    Return each pixel's instance area.
+    '''
+    area = np.zeros((image_height, image_width, 1), dtype=np.float32)
 
-def _generate_instance_area(args):
-    train, imgid, dir_area = args
+    for r in df.itertuples():
+        cell = annotation_to_semg(r.annotation, image_height, image_width)
+        cell = cell.astype(np.bool)
 
-    for i, cell in enumerate(train[train['id'] == imgid].itertuples()):
-        semseg_cell = rle_decode(mask_rle=cell.annotation,
-                                 shape=(cell.height, cell.width, 1),
-                                 color=1)
+        area[cell] = cell.sum()
 
-        area_cell = semseg_cell.sum()
-
-        if i == 0:
-            semseg = semseg_cell.copy()
-            instance_area = area_cell * semseg_cell
-        else:
-            semseg += semseg_cell
-            instance_area += (area_cell * semseg_cell)
-
-    overlap = semseg > 1
-    semseg[overlap] = 0
-    instance_area[overlap] = 0
-
-    np.save(f'{dir_area}/{imgid}', instance_area)
-    return imgid
+    return area
 
 
 def _generate_distance_transform(args):
