@@ -245,7 +245,7 @@ class DirectionNetMock(nn.Module):
             img (N, 3x1, H, W )
             semg (N, 1, H, W)
         '''
-        x = torch.cat([semg * img, semg], dim=1)
+        x = torch.cat([semg * img, 32 * semg], dim=1)
 
         x = self.conv1_1(x)
         x = self.conv1_2(x)
