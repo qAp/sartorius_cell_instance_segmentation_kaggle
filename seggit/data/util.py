@@ -191,6 +191,8 @@ def generate_instance_area(df, image_height=520, image_width=704):
     '''
     Return each pixel's instance area.
     '''
+    df = df.sort_values('cell_area', axis=0, ascending=False)
+    
     area = np.zeros((image_height, image_width, 1), dtype=np.float32)
 
     for r in df.itertuples():
