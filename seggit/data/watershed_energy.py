@@ -74,7 +74,7 @@ class WatershedEnergy(pl.LightningDataModule):
         self.image_size = self.args.get('image_size', IMAGE_SIZE)
         self.batch_size = self.args.get('batch_size', BATCH_SIZE)
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
-        self.on_gpu = isinstance(self.args.get('gpu', None), (int, str))
+        self.on_gpu = isinstance(self.args.get('gpus', None), (int, str))
 
         self.train_ds: WatershedEnergyDataset
         self.valid_ds: WatershedEnergyDataset
