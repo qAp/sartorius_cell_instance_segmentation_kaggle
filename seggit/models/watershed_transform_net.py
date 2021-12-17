@@ -14,7 +14,7 @@ def net_params(outputChannels=len(WATERSHED_ENERGY_BINS) + 1,
               "depth/conv2_4": {"name": "depth/conv2_4", "shape": [5, 5, 128, 128], "std": None, "act": "relu", "reuse": False},
               "depth/fcn1": {"name": "depth/fcn1", "shape": [1, 1, 128, 128], "std": None, "act": "relu", "reuse": False},
               "depth/fcn2": {"name": "depth/fcn2", "shape": [1, 1, 128, outputChannels], "std": None, "act": "relu", "reuse": False},
-              "depth/upscore": {"name": "depth/upscore", "ksize": 8, "stride": 4, "outputChannels": outputChannels},
+              "depth/upscore": {"name": "depth/upscore", "ksize": 8, "stride": 4, 'padding': 2, "outputChannels": outputChannels},
               }
     return params
 
@@ -39,7 +39,7 @@ class WatershedTransformNet(nn.Module):
         self.fcn1 = self._conv_layer(self.params["depth/fcn1"], dropout_p=.7)
         self.fcn2 = self._conv_layer(self.params["depth/fcn2"], dropout_p=.7)
 
-        # self.upscore_layer = self._upscore_layer(self.params["depth/upscore"])
+        self.upscore_layer = self._upscore_layer(self.params["depth/upscore"]) # 4x
 
         # self.outputDataArgMax = tf.argmax(input=self.outputData, dimension=3)
 
