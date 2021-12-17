@@ -28,13 +28,13 @@ class WatershedTransformNet(nn.Module):
 
         self.conv1_1 = self._conv_layer(self.params["depth/conv1_1"])
         self.conv1_2 = self._conv_layer(self.params["depth/conv1_2"])
-        self.pool1 = self._average_pool()
+        self.pool1 = self._avg_pool()
 
         self.conv2_1 = self._conv_layer(self.params["depth/conv2_1"])
         self.conv2_2 = self._conv_layer(self.params["depth/conv2_2"])
         self.conv2_3 = self._conv_layer(self.params["depth/conv2_3"])
         self.conv2_4 = self._conv_layer(self.params["depth/conv2_4"])
-        self.pool2 = self._average_pool()
+        self.pool2 = self._avg_pool()
 
         self.fcn1 = self._conv_layer(self.params["depth/fcn1"], dropout_p=.7)
         self.fcn2 = self._conv_layer(self.params["depth/fcn2"], dropout_p=.7)
@@ -60,7 +60,7 @@ class WatershedTransformNet(nn.Module):
 
         x = self.fcn1(x)
         x = self.fcn2(x)
-        
+
         return x
 
     def _conv_layer(self, params, dropout_p=None):
