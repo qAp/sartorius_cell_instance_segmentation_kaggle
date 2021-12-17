@@ -19,7 +19,7 @@ def _setup_parser():
     trainer_parser._action_groups[1].title = 'Trainer Args'
     parser = argparse.ArgumentParser(add_help=False, parents=[trainer_parser])
     add = parser.add_argument
-    add('--data_class', type=str, default='WatershedEnergey')
+    add('--data_class', type=str, default='WatershedEnergy')
     add('--model_class', type=str, default='WatershedTransformNet')
     add('--lit_model_class', type=str, default='WatershedEnergyLitModel')
     add('--dir_out', type=str, default='training/logs')
