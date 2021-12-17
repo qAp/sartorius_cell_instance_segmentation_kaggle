@@ -83,7 +83,7 @@ class WatershedTransformNet(nn.Module):
             pass
 
         if dropout_p is not None:
-            layers.append(nn.Dropout(p=dropout_p, inplace=True))
+            layers.append(nn.Dropout(p=dropout_p, inplace=False))
 
         return nn.Sequential(*layers)
 
