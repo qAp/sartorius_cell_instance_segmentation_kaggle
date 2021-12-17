@@ -3,13 +3,17 @@ import os, sys
 import argparse
 import numpy as np
 import pandas as pd
-from seggit.data.instance_direction import FOLD, IMAGE_SIZE, NUM_WORKERS
 import torch
 import cv2
 import albumentations as albu
 import pytorch_lightning as pl
 
-from seggit.data.config import DIR_KFOLD, DIR_MASK, DIR_AREA, DIR_DTFM, DIR_ENERGY
+from seggit.data.config import DIR_KFOLD, DIR_IMG, DIR_SEMSEG, DIR_AREA
+from seggit.data.config import MEAN_IMAGE, STD_IMAGE
+from seggit.data.config import WATERSHED_ENERGY_BINS
+from seggit.data.util import semg_to_dtfm, dtfm_to_uvec, dtfm_to_wngy
+from seggit.data.transforms import default_tfms, aug_tfms
+
 
 
 FOLD = 0
@@ -34,35 +38,30 @@ class WatershedEnergyDataset(torch.utils.data.Dataset):
     def __getitem__(self, i):
         imgid = self.imgids[i]
 
-        semseg = cv2.imread(f'{DIR_MASK}/{imgid}.png')
-        instance_area = np.load(f'{DIR_AREA}/{imgid}.npy')
-        dtfm = np.load(f'{DIR_DTFM}/{imgid}.npy')
-        energy = np.load(f'{DIR_ENERGY}/{imgid}.npy')
+        img = cv2.imread(f'{DIR_IMG}/{imgid}.png')
+        semseg = cv2.imread(f'{DIR_SEMSEG}/{imgid}.png')
+        area = np.load(f'{DIR_AREA}/{imgid}.npy')
 
-        mask = np.stack(
-            [
-                semseg[:, :, 0].astype(np.float32),
-                instance_area[:, :, 0].astype(np.float32),
-                dtfm[:, :].astype(np.float32),
-                energy[:, :].astype(np.float32)
-            ],
-            axis=2)
+        semseg = semseg.astype(np.float32)
 
         if self.transform:
-            transformed = self.transform(
-                image=mask[...,[0]].astype(np.uint8),  # dummy image
-                mask=mask)
-            mask = transformed['mask']
+            mask = np.concatenate([semseg, area], axis=2)
+            tfmd = self.transform(image=img, mask=mask)
+            img = tfmd['image']
+            mask = tfmd['mask']
+            semseg = mask[..., :3]
+            area = mask[..., [3]]
 
-        grad_dtfm = np.stack(np.gradient(mask[..., 2]), axis=2)
-        norm = np.linalg.norm(grad_dtfm, axis=2, keepdims=True)
-        uvec = np.nan_to_num(grad_dtfm / norm)
+        img = (img - MEAN_IMAGE) / STD_IMAGE
+        img = img.astype(np.float32)
 
-        semseg = mask[..., [0]]
-        area = mask[..., [1]]
-        energy = mask[..., [3]]
+        semg = semseg[..., [0]] / 255
+        dtfm = semg_to_dtfm(semg)
+        uvec = dtfm_to_uvec(dtfm)
+        wngy = dtfm_to_wngy(dtfm)
 
-        return semseg, area, uvec, energy
+        return uvec, wngy, semg, area
+
 
 
 class WatershedEnergy(pl.LightningDataModule):
@@ -76,9 +75,6 @@ class WatershedEnergy(pl.LightningDataModule):
         self.batch_size = self.args.get('batch_size', BATCH_SIZE)
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
         self.on_gpu = isinstance(self.args.get('gpu', None), (int, str))
-
-        transform = _tfms(self.image_size)
-        self.transform = albu.Compose(transform)
 
         self.train_ds: WatershedEnergyDataset
         self.valid_ds: WatershedEnergyDataset
@@ -96,20 +92,13 @@ class WatershedEnergy(pl.LightningDataModule):
             f'Generate k-folds with data.util.generate_kfold'
         )
 
-        assert os.path.exists(DIR_ENERGY), (
-            f'Watershed energy {DIR_ENERGY} not found.'
-            'Load this or generate with '
-            'data/scripts/generate_watershed_energy.py'
+        assert os.path.exists(DIR_IMG), (
+            f'Image directory {DIR_IMG} not found.'
+            'Load competition data.'
         )
 
-        assert os.path.exists(DIR_DTFM), (
-            f'Distance transform {DIR_DTFM} not found.'
-            'Load or generate with '
-            'data/scripts/generate_normalised_gradient.py'
-        )
-
-        assert os.path.exists(DIR_MASK), (
-            f'Semantic segmentation {DIR_MASK} not found.'
+        assert os.path.exists(DIR_SEMSEG), (
+            f'Semantic segmentation {DIR_SEMSEG} not found.'
             'Load this or generate with '
             'data/scripts/generate_mask.py'
         )
@@ -124,8 +113,14 @@ class WatershedEnergy(pl.LightningDataModule):
         df_train = pd.read_csv(f'{DIR_KFOLD}/train_fold{self.fold}.csv')
         df_valid = pd.read_csv(f'{DIR_KFOLD}/valid_fold{self.fold}.csv')
 
-        self.train_ds = WatershedEnergyDataset(df_train, transform=self.transform)
-        self.valid_ds = WatershedEnergyDataset(df_valid, transform=self.transform)
+        self.train_ds = WatershedEnergyDataset(
+            df_train, 
+            transform=albu.Compose(aug_tfms(self.image_size))
+            )
+        self.valid_ds = WatershedEnergyDataset(
+            df_valid, 
+            transform=albu.Compose(default_tfms(self.image_size))
+            )
 
     def train_dataloader(self):
         return torch.utils.data.DataLoader(
