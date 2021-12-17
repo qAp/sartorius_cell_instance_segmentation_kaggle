@@ -79,6 +79,9 @@ class WatershedEnergy(pl.LightningDataModule):
         self.train_ds: WatershedEnergyDataset
         self.valid_ds: WatershedEnergyDataset
 
+    def config(self):
+        return None
+
     @staticmethod
     def add_argparse_args(parser):
         parser.add_argument('--fold', type=int, default=FOLD)
