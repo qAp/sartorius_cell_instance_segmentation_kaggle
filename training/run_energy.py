@@ -18,7 +18,7 @@ def _setup_parser():
     trainer_parser = pl.Trainer.add_argparse_args(parser)
     trainer_parser._action_groups[1].title = 'Trainer Args'
     parser = argparse.ArgumentParser(add_help=False, parents=[trainer_parser])
-    add = parser.argument()
+    add = parser.add_argument()
     add('--data_class', type=str, default='WatershedEnergey')
     add('--model_class', type=str, default='WatershedTransformNet')
     add('--lit_model_class', type=str, default='WatershedEnergyLitModel')
