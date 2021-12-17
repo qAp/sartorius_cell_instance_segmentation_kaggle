@@ -61,6 +61,8 @@ class WatershedTransformNet(nn.Module):
         x = self.fcn1(x)
         x = self.fcn2(x)
 
+        x = self.upscore_layer(x)
+        
         return x
 
     def _conv_layer(self, params, dropout_p=None):
