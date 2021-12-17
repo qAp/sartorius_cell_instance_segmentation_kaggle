@@ -39,7 +39,7 @@ class WatershedEnergyLitModel(pl.LightningModule):
         self.optimizer = getattr(torch.optim, optimizer)
 
         loss = self.args.get('loss', LOSS)
-        loss_class = _import_class(f'seggit.lit_models.losses.{loss_class}')
+        loss_class = _import_class(f'seggit.lit_models.losses.{loss}')
         self.train_loss = loss_class()
         self.val_loss = loss_class()
 
