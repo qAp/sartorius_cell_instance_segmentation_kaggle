@@ -96,10 +96,9 @@ class WatershedEnergyLoss1(nn.Module):
         super().__init__()
         self.epsilon = 1e-25
         self.num_classes = len(WATERSHED_ENERGY_BINS) + 1
-        # self.cs_scaling = torch.tensor(
-        #     [3.0, 3.0, 3.0, 2.0, 1.0, 1.0,
-        #         1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
-        self.cs_scaling = torch.arange(self.num_classes, 0, -1).type(torch.float32)
+        self.cs_scaling = torch.tensor(
+            [3.0, 3.0, 3.0, 2.0, 1.0, 1.0,
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
 
     def forward(self, logits, wngy, semg, area):
         '''
