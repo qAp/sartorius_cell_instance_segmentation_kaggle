@@ -91,43 +91,43 @@ class WatershedEnergyLoss(nn.Module):
         return loss
 
 
-    class WatershedEnergyLoss1(nn.Module):
-        def __init__(self):
-            super().__init__()
-            self.epsilon = 1e-25
-            self.num_classes = len(WATERSHED_ENERGY_BINS) + 1
-            self.cs_scaling = torch.tensor(
-                [3.0, 3.0, 3.0, 2.0, 1.0, 1.0,
-                 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+class WatershedEnergyLoss1(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.epsilon = 1e-25
+        self.num_classes = len(WATERSHED_ENERGY_BINS) + 1
+        self.cs_scaling = torch.tensor(
+            [3.0, 3.0, 3.0, 2.0, 1.0, 1.0,
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
 
-        def forward(self, logits, wngy, semg, area):
-            '''
-            Args:
-                logits (N, 17, H, W)
-                wngy (N, 1, H, W)
-                semg (N, 1, H, W)
-                area (N, 1, H, W)
-            '''
-            logits = logits.permute(0, 2, 3, 1).reshape(-1, self.num_classes)
-            wngy = wngy.permute(0, 2, 3, 1).reshape(-1, 1)
-            semg = semg.permute(0, 2, 3, 1).reshape(-1).type(torch.bool)
-            area = area.permute(0, 2, 3, 1).reshape(-1, 1)
+    def forward(self, logits, wngy, semg, area):
+        '''
+        Args:
+            logits (N, 17, H, W)
+            wngy (N, 1, H, W)
+            semg (N, 1, H, W)
+            area (N, 1, H, W)
+        '''
+        logits = logits.permute(0, 2, 3, 1).reshape(-1, self.num_classes)
+        wngy = wngy.permute(0, 2, 3, 1).reshape(-1, 1)
+        semg = semg.permute(0, 2, 3, 1).reshape(-1).type(torch.bool)
+        area = area.permute(0, 2, 3, 1).reshape(-1, 1)
 
-            logits = logits[semg, :]
-            wngy = wngy[semg]
-            area = area[semg]
+        logits = logits[semg, :]
+        wngy = wngy[semg]
+        area = area[semg]
 
-            weight = 1 / area.sqrt()
+        weight = 1 / area.sqrt()
 
-            predSoftmax = F.softmax(logits, dim=1)
-            gt = F.one_hot(wngy.squeeze(), num_classes=self.num_classes)
+        predSoftmax = F.softmax(logits, dim=1)
+        gt = F.one_hot(wngy.squeeze(), num_classes=self.num_classes)
 
-            ll = (
-                gt * predSoftmax.clamp(min=self.epsilon).log() +
-                (1 - gt) * (1 - predSoftmax).clamp(min=self.epsilon).log()
-            )
+        ll = (
+            gt * predSoftmax.clamp(min=self.epsilon).log() +
+            (1 - gt) * (1 - predSoftmax).clamp(min=self.epsilon).log()
+        )
 
-            cs = - (ll * weight * self.cs_scaling).sum()
+        cs = - (ll * weight * self.cs_scaling).sum()
 
-            return cs / (weight.sum() + 1)
+        return cs / (weight.sum() + 1)
 
