@@ -43,6 +43,10 @@ class WatershedTransformNet(nn.Module):
 
         # self.outputDataArgMax = tf.argmax(input=self.outputData, dimension=3)
 
+    @staticmethod
+    def add_argparse_args(parser):
+        pass
+
     def forward(self, uvec):
         '''
         Args:
@@ -62,7 +66,7 @@ class WatershedTransformNet(nn.Module):
         x = self.fcn2(x)
 
         x = self.upscore_layer(x)
-        
+
         return x
 
     def _conv_layer(self, params, dropout_p=None):
