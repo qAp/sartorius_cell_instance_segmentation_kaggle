@@ -76,7 +76,7 @@ class WatershedLitModel(pl.LightningModule):
         semg = semg.permute(0, 3, 1, 2)
         area = area.permute(0, 3, 1, 2)
 
-        logits = self(img)
+        logits = self(img, semg)
 
         loss = self.train_loss(logits, wngy, semg, area)
         self.log('train_loss', loss, on_step=False, on_epoch=True)
@@ -91,7 +91,7 @@ class WatershedLitModel(pl.LightningModule):
         semg = semg.permute(0, 3, 1, 2)
         area = area.permute(0, 3, 1, 2)
 
-        logits = self(img)
+        logits = self(img, semg)
 
         loss = self.val_loss(logits, wngy, semg, area)
         self.log('val_loss', loss, prog_bar=True)
