@@ -14,7 +14,7 @@ class NCorrectPredictions(nn.Module):
         semg = semg.permute(0, 2, 3, 1).reshape(-1).type(torch.bool)
 
         wngy_pred = logits.argmax(dim=1).reshape(-1, 1)
-        return (wngy == wngy_pred)[semg, :].sum()
+        return (wngy == wngy_pred)[semg, :].sum() / semg.sum()
 
 
 
