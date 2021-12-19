@@ -70,7 +70,7 @@ def main():
     model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
         filename=(
             f'fold{args.fold:d}-' +
-            'epoch{epoch:03d}-val_loss{val_loss:.3f}'
+            'epoch{epoch:03d}-val_loss{val_loss:.3f}-val_ncorrect{val_ncorrect:d}'
         ),
         monitor='val_loss',
         mode='min',
