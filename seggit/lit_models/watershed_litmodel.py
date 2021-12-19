@@ -5,6 +5,7 @@ import pytorch_lightning as pl
 
 from seggit.lit_models.losses import (WatershedEnergyLoss, 
                                       WatershedEnergyLoss1)
+from seggit.lit_models.metrics import NCorrectPredictions
 
 
 
@@ -41,6 +42,7 @@ class WatershedLitModel(pl.LightningModule):
         loss_class = _import_class(f'seggit.lit_models.losses.{loss}')
         self.train_loss = loss_class()
         self.val_loss = loss_class()
+        self.metric_func = NCorrectPredictions()
 
     def forward(self, img, semg):
         return self.model(img, semg)
@@ -95,3 +97,7 @@ class WatershedLitModel(pl.LightningModule):
 
         loss = self.val_loss(logits, wngy, semg, area)
         self.log('val_loss', loss, prog_bar=True)
+
+        metric = self.metric_func(logits, wngy, semg)
+        self.log('val_ncorrect', metric, 
+                 on_step=False, on_epoch=True, prog_bar=True)
