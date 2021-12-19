@@ -38,8 +38,8 @@ class WatershedNet(nn.Module):
             semg (N, 1, H, W)
         '''
         uvec = self.dn(img, semg)        
-        wngy = self.wtn(uvec)
-        return wngy
+        logits = self.wtn(uvec)
+        return logits
 
         
 
