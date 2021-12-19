@@ -21,7 +21,7 @@ def _import_class(module_class_name):
     return getattr(module, class_name)
 
 
-class WatershedEnergyLitModel(pl.LightningModule):
+class WatershedLitModel(pl.LightningModule):
     def __init__(self, model, args=None):
         super().__init__()
         self.model = model
