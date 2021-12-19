@@ -42,8 +42,8 @@ class WatershedLitModel(pl.LightningModule):
         self.train_loss = loss_class()
         self.val_loss = loss_class()
 
-    def forward(self, x):
-        return self.model(x)
+    def forward(self, img, semg):
+        return self.model(img, semg)
 
     @staticmethod
     def add_argparse_args(parser):
