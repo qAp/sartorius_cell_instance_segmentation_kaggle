@@ -14,8 +14,8 @@ os.makedirs(dir_energy, exist_ok=True)
 imgids = [f.split('.')[0] for f in os.listdir(DIR_SEMSEG)]
 args_list = [(imgid, dir_energy) for imgid in imgids]
 
-def _generate_watershed_energy(args_list):
-    imgid, dir_energy = args_list
+def _generate_watershed_energy(args):
+    imgid, dir_energy = args
 
     semseg = cv2.imread(f'{DIR_SEMSEG}/{imgid}.png')
     semg = semseg[..., [0]]
