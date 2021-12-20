@@ -330,7 +330,7 @@ def padto_divisible_by32(a):
 
     a = np.pad(a, 
                pad_width=((y0, y1), (x0, x1), (0, 0)),
-               mode='symmetric')
+               mode='constant')
 
     assert a.shape[0] % 32 == 0
     assert a.shape[1] % 32 == 0
