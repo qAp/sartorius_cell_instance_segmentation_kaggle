@@ -292,7 +292,10 @@ class DirectionNetMock(nn.Module):
 
         upscore5_3 = self.upscore5_3(fcn5_3)
         upscore4_3 = self.upscore4_3(fcn4_3)
-
+        
+        print('fcn3_3', fcn3_3.shape)
+        print('upscore4_3', upscore4_3.shape)
+        print('upscore5_3', upscore5_3.shape)
         fuse3 = torch.cat([fcn3_3, upscore4_3, upscore5_3], dim=1)
 
         x = self.fuse3_1(fuse3)
