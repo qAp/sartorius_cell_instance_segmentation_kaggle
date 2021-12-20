@@ -11,7 +11,7 @@ DIR_MASK = '/kaggle/input/sardata-train-mask/train_mask'
 DIR_AREA = '/kaggle/input/sardata-instance-area/instance_area'
 DIR_DTFM = '/kaggle/input/sardata-distance-transform/distance_transform'
 DIR_UVEC = '/kaggle/input/sardata-uvec/uvec'
-DIR_ENERGY = '/kaggle/input/sardata-watershed-energy/watershed_energy'
+DIR_ENERGY = '/kaggle/input/sardata-watershed-energy/wngy'
 
 
 # Computed with data/scripts/compute_image_mean_std.py
