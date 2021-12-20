@@ -1,10 +1,16 @@
-
+import os, sys
 import torch.nn as nn
 import torch.nn.functional as F
 
 import seggit
 from seggit.models import DirectionNetMock
 from seggit.models import WatershedTransformNet
+from seggit.lit_models import InstanceDirectionMockLitModel
+from seggit.lit_models import WatershedEnergyLitModel
+
+
+PRETRAINED_DN = None 
+PRETRAINED_WTN = None
 
 
 def net_params():
@@ -26,10 +32,38 @@ class WatershedNet(nn.Module):
         self.dn = DirectionNetMock(data_config, args)
         self.wtn = WatershedTransformNet(data_config, args)
 
+        self.pretrained_dn = self.args.get('pretrained_dn', PRETRAINED_DN)
+        self.pretrained_wtn = self.args.get('pretrained_wtn', PRETRAINED_WTN)
+
+        self.init_model_parameters()
+
+    def init_model_parameters(self):
+        dn = DirectionNetMock()
+        wtn = WatershedTransformNet()
+
+        if self.pretrained_dn is not None:
+            assert os.path.exists(self.pretrained_dn)
+            dn_litmodel = InstanceDirectionMockLitModel.from_argparse_args(
+                checkpoint_path=self.pretrained_dn, model=dn)
+            self.dn = dn_litmodel.model
+        else:
+            self.dn = dn
+
+        if self.pretrained_wtn is not None:
+            assert os.path.exists(self.pretrained_wtn)
+            wtn_litmodel = WatershedEnergyLitModel.from_argparse_args(
+                checkpoint_path=self.pretrained_wtn, model=wtn)
+            self.wtn = wtn_litmodel.model
+        else:
+            self.wtn = wtn
+
     @staticmethod
     def add_argparse_args(parser):
+        add = parser.add_argument
         DirectionNetMock.add_argparse_args(parser)
         WatershedTransformNet.add_argparse_args(parser)
+        add('--pretrained_dn', type=str, default=PRETRAINED_DN)
+        add('--pretrained_wtn', type=str, default=PRETRAINED_WTN)
 
     def forward(self, img, semg):
         '''
