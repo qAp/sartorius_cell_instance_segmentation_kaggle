@@ -25,7 +25,7 @@ def _generate_watershed_energy(args):
     dtfm = semg_to_dtfm(semg)
     wngy = dtfm_to_wngy(dtfm)
 
-    np.save(f'{dir_energy}/{wngy}', wngy)
+    np.save(f'{dir_energy}/{imgid}', wngy)
 
     return imgid
 
