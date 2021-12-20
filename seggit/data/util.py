@@ -323,3 +323,34 @@ def find_samples_overlap_gt_cell():
     return overlap_large_list
 
 
+def padto_divisible_by32(a):
+    '''
+    Pad to model-compatible shape. i.e. sides are divisible by 32.
+    
+    Args:
+        a (H, W, C) np.array: Array
+    '''
+    y0, y1 = 16, 16
+    x0, x1 = 16, 16
+
+    if a.shape[0] % 32 != 0:
+        dy = 32 - a.shape[0] % 32
+        y0 += int(dy / 2)
+        y1 += dy - int(dy / 2)
+
+    if a.shape[1] % 32 != 0:
+        dx = 32 - a.shape[1] % 32
+        x0 += int(dx / 2)
+        x1 += dx - int(dx / 2)
+
+    a = np.pad(a, 
+               pad_width=((y0, y1), (x0, x1), (0, 0)),
+               mode='symmetric')
+
+    assert a.shape[0] % 32 == 0
+    assert a.shape[1] % 32 == 0
+    
+    padding = {'y0': y0, 'y1': y1, 'x0': x0, 'x1': x1}
+    return padding, a
+
+
