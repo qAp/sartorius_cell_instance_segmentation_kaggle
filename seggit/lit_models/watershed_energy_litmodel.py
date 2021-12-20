@@ -10,8 +10,9 @@ from seggit.lit_models.losses import (WatershedEnergyLoss,
 
 
 LR = 5e-4
+WEIGHT_DECAY = 1e-6
 OPTIMIZER = 'Adam'
-ONE_CYCLE_TOTAL_STEPS = 100
+ONE_CYCLE_TOTAL_STEPS = 25
 LOSS = 'WatershedEnergyLoss1'
 
 
@@ -59,7 +60,7 @@ class WatershedEnergyLitModel(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = self.optimizer(self.parameters(), 
                                    lr=self.lr, 
-                                   weight_decay=1e-5)
+                                   weight_decay=WEIGHT_DECAY)
         if self.one_cycle_max_lr is None:
             return optimizer
         else:
