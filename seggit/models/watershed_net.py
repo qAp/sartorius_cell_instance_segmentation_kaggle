@@ -46,6 +46,7 @@ class WatershedNet(nn.Module):
             dn_litmodel = InstanceDirectionMockLitModel.load_from_checkpoint(
                 checkpoint_path=self.pretrained_dn, model=dn)
             self.dn = dn_litmodel.model
+            print(f'Loaded pretrained DN: {self.pretrained_dn}')
         else:
             self.dn = dn
 
@@ -54,6 +55,7 @@ class WatershedNet(nn.Module):
             wtn_litmodel = WatershedEnergyLitModel.load_from_checkpoint(
                 checkpoint_path=self.pretrained_wtn, model=wtn)
             self.wtn = wtn_litmodel.model
+            print(f'Loaded pretrained WTN: {self.pretrained_wtn}')
         else:
             self.wtn = wtn
 
