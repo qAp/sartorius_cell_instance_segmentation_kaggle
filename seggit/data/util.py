@@ -285,21 +285,6 @@ def define_watershed_energy_bins():
     return bins
 
 
-def _generate_watershed_energy(args):
-    '''
-    Generate watershed energy by digitizing 
-    distance transform using pre-defined energy bins.
-    '''
-    imgid, dir_energy = args
-
-    dtfm = np.load(f'{DIR_DTFM}/{imgid}.npy')
-    energy = np.digitize(dtfm, bins=WATERSHED_ENERGY_BINS)
-
-    np.save(f'{dir_energy}/{imgid}', energy)
-
-    return imgid
-
-
 def find_samples_overlap_gt_cell():
     '''
     Find the samples whose overlap area is greater than
