@@ -43,7 +43,7 @@ class WatershedNet(nn.Module):
 
         if self.pretrained_dn is not None:
             assert os.path.exists(self.pretrained_dn)
-            dn_litmodel = InstanceDirectionMockLitModel.from_argparse_args(
+            dn_litmodel = InstanceDirectionMockLitModel.load_from_checkpoint(
                 checkpoint_path=self.pretrained_dn, model=dn)
             self.dn = dn_litmodel.model
         else:
@@ -51,7 +51,7 @@ class WatershedNet(nn.Module):
 
         if self.pretrained_wtn is not None:
             assert os.path.exists(self.pretrained_wtn)
-            wtn_litmodel = WatershedEnergyLitModel.from_argparse_args(
+            wtn_litmodel = WatershedEnergyLitModel.load_from_checkpoint(
                 checkpoint_path=self.pretrained_wtn, model=wtn)
             self.wtn = wtn_litmodel.model
         else:
