@@ -49,9 +49,14 @@ class InstanceDirectionMockDataset(torch.utils.data.Dataset):
         img = (img - MEAN_IMAGE) / STD_IMAGE
         img = img.astype(np.float32)
 
+        # G.t uvec needs to be from instance-resolved ss 
         semg = semseg[..., [0]] / 255
         dtfm = semg_to_dtfm(semg)
         uvec = dtfm_to_uvec(dtfm)
+
+        # For model and loss input, use instance-unresolved ss,
+        # as will be expected from the Unet.
+        semg = (semseg[..., [0]] + semseg[..., [1]]) / 255
 
         return img, uvec, semg, area
 
