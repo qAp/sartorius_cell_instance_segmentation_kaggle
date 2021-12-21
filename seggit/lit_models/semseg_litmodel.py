@@ -6,11 +6,12 @@ import albumentations as albu
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 
-from seggit.lit_models.losses import SemSegLoss
+import seggit.lit_models.losses
 
 
 ARCH = 'Unet'
 ENCODER_NAME = 'resnet34'
+LOSS = 'SemSegLoss'
 LR = 1e-4
 OPTIMIZER = 'Adam'
 ONE_CYCLE_TOTAL_STEPS = 400
@@ -24,7 +25,9 @@ class SemSegLitModel(pl.LightningModule):
         self.model = model
         self.args = vars(args) if args is not None else {}
 
-        self.loss_func = SemSegLoss() 
+        loss = self.args.get('loss', LOSS)
+        self.loss_func = getattr(seggit.lit_models.losses, loss)
+
         self.iou55 = smp.utils.metrics.IoU(threshold=0.55)
         self.iou65 = smp.utils.metrics.IoU(threshold=0.65)
         self.iou75 = smp.utils.metrics.IoU(threshold=0.75)
@@ -48,6 +51,7 @@ class SemSegLitModel(pl.LightningModule):
         add = parser.add_argument
         add('--arch', type=str, default=ARCH)
         add('--encoder_name', type=str, default=ENCODER_NAME)
+        add('--loss', type=str, default=LOSS)
         add('--optimizer', type=str, default=OPTIMIZER)
         add('--lr', type=float, default=LR)
         add('--one_cycle_total_steps', type=int, default=ONE_CYCLE_TOTAL_STEPS)
