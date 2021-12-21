@@ -47,10 +47,9 @@ class SemSegDataset(torch.utils.data.Dataset):
         img = img.astype(np.float32)
         img = (img - MEAN_IMAGE) / (STD_IMAGE)
 
-        if self.use_softmax:
-            semseg[..., 2] = 255 - semseg[..., 0] - semseg[..., 1]
-        else:
+        if not self.use_softmax:
             semseg = semseg[..., :2]
+            
         semseg = np.clip(semseg, 0, 255)
         semseg = (semseg / 255).astype(np.float32)
 
