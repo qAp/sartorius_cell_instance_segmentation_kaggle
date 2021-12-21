@@ -26,7 +26,8 @@ class SemSegLitModel(pl.LightningModule):
         self.args = vars(args) if args is not None else {}
 
         loss = self.args.get('loss', LOSS)
-        self.loss_func = getattr(seggit.lit_models.losses, loss)
+        loss_class = getattr(seggit.lit_models.losses, loss)
+        self.loss_func = loss_class()
 
         self.iou55 = smp.utils.metrics.IoU(threshold=0.55)
         self.iou65 = smp.utils.metrics.IoU(threshold=0.65)
