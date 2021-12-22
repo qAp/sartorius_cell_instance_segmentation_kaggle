@@ -6,6 +6,7 @@ def create_segmentation_model(data_config, args=None):
 
     arch = getattr(smp, args.arch)
     encoder_name = args.encoder_name
+    encoder_weights = args.encoder_weights
     in_channels = data_config['input_dims'][2]
     classes = data_config['output_dims'][2]
 
@@ -15,6 +16,7 @@ def create_segmentation_model(data_config, args=None):
         activation = 'sigmoid'
 
     model = arch(encoder_name=encoder_name,
+                 encoder_weights=encoder_weights,
                  in_channels=in_channels,
                  classes=classes,
                  activation=activation)

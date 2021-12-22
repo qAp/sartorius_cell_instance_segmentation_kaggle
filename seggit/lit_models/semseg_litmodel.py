@@ -11,6 +11,7 @@ import seggit.lit_models.losses
 
 ARCH = 'Unet'
 ENCODER_NAME = 'resnet34'
+ENCODER_WEIGHTS = 'imagenet'
 LOSS = 'SemSegLoss'
 LR = 1e-4
 OPTIMIZER = 'Adam'
@@ -52,6 +53,7 @@ class SemSegLitModel(pl.LightningModule):
         add = parser.add_argument
         add('--arch', type=str, default=ARCH)
         add('--encoder_name', type=str, default=ENCODER_NAME)
+        add('--encoder_weights', type=str, default=ENCODER_WEIGHTS)
         add('--loss', type=str, default=LOSS)
         add('--optimizer', type=str, default=OPTIMIZER)
         add('--lr', type=float, default=LR)
