@@ -11,7 +11,7 @@ import seggit.lit_models.losses
 
 ARCH = 'Unet'
 ENCODER_NAME = 'resnet34'
-ENCODER_WEIGHTS = 'imagenet'
+ENCODER_WEIGHTS = None
 LOSS = 'SemSegLoss'
 LR = 1e-4
 OPTIMIZER = 'Adam'
