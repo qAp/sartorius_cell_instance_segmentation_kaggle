@@ -22,6 +22,7 @@ def _setup_parser():
     parser.add_argument('--lit_model_class', type=str, default='SemSegLitModel')
     parser.add_argument('--dir_out', type=str, default='training/logs')
     parser.add_argument('--wandb', action='store_true', default=False)
+    parser.add_argument('--load_from_checkpoint', type=str, default=None)
 
     args, _ = parser.parse_known_args()
     data_class = _import_class(f'seggit.data.{args.data_class}')
@@ -48,7 +49,12 @@ def main():
 
     model = create_segmentation_model(data.config(), args)
 
-    lit_model = lit_model_class(model, args=args)
+    if args.load_from_checkpoint is not None:
+        lit_model = lit_model_class.load_from_checkpoint(
+            checkpoint_path=args.load_from_checkpoint,
+            model=model, args=args)
+    else:
+        lit_model = lit_model_class(model, args=args)
 
     logger = pl.loggers.TensorBoardLogger(args.dir_out)
     
