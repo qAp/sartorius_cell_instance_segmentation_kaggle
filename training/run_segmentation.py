@@ -75,6 +75,7 @@ def main():
         ),
         monitor='val_iou95',
         mode='max',
+        save_top_k=5,
         auto_insert_metric_name=False,
         save_last=True)
 
