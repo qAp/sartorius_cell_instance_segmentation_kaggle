@@ -83,6 +83,21 @@ def rle_decode(mask_rle, shape, color=1):
     return img.reshape(shape)
 
 
+def rle_encoding(x):
+    '''
+    Args:
+        x (H, W, 1) np.array: Binary mask
+    '''
+    dots = np.where(x.flatten() == 1)[0]
+    run_lengths = []
+    prev = -2
+    for b in dots:
+        if (b>prev+1): run_lengths.extend((b + 1, 0))
+        run_lengths[-1] += 1
+        prev = b
+    return ' '.join(map(str, run_lengths))
+
+
 def annotation_to_semg(annotation, image_height=520, image_width=704):
     '''
     Convert RLE to semantic segmentation
