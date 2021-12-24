@@ -1,4 +1,23 @@
 
+import argparse
+import numpy as np
+import torch
+import cv2
+import skimage.morphology
+
+from seggit.data.config import MEAN_IMAGE, STD_IMAGE
+from seggit.data.util import padto_divisible_by32
+from seggit.data import SemSeg
+from seggit.models.util import create_segmentation_model
+from seggit.models import WatershedNet
+from seggit.lit_models import SemSegLitModel, WatershedLitModel
+
+
+
+PTH_UNET = None
+PTH_WN = None
+
+
 def load_semseg_litmodel(checkpoint_path=None):
     parser = argparse.ArgumentParser()
     SemSeg.add_argparse_args(parser)
@@ -40,7 +59,8 @@ def watershed_cut(wngy, semg, threshold=1, selem_width=3):
     '''
     semg = semg.astype(np.bool)
     ccimg = (wngy > threshold) * semg
-    ccimg_nosmall = skimage.morphology.remove_small_objects(ccimg, min_size=20,)
+    ccimg_nosmall = skimage.morphology.remove_small_objects(ccimg, 
+                                                            min_size=20)
     ccimg_nohole = skimage.morphology.remove_small_holes(ccimg_nosmall)
     cclabels = skimage.morphology.label(ccimg_nohole)
     
@@ -63,15 +83,32 @@ class CellSegmenter:
     def __init__(self, args=None):
         self.args = vars(args) if args is not None else {}
 
-        self.pth_unet = self.args.get('pth_unet')
-        self.pth_wn = self.args.get('pth_wn')
+        self.pth_unet = self.args.get('pth_unet', PTH_UNET)
+        self.pth_wn = self.args.get('pth_wn', PTH_WN)
 
-    def load_models(self):
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
         self.unet = load_semseg_litmodel(checkpoint_path=self.pth_unet)
+        self.unet.to(self.device)
+
         self.wn = load_watershed_litmodel(checkpoint_path=self.pth_wn)
+        self.wn.to(self.device)
+
+    def pp0(self, semseg):
+        semg = semseg[..., [0]] # + semseg[..., [1]]
+        return semg
+
+    def pp1(self, pr):
+        semg_pred = (pr == 0) + (pr == 1)
+        semg_pred = skimage.morphology.binary_dilation(
+            semg_pred, 
+            selem=np.ones(3 * (4, ))
+            )
+        semg_pred = semg_pred.astype(np.float32)
+        return semg_pred 
 
     @torch.no_grad()
-    def predict_semseg(img):
+    def predict_semseg(self, img):
         '''
         Args:
             img (N, H, W, 3) np.array
@@ -79,8 +116,9 @@ class CellSegmenter:
             semseg (N, H, W, 3) np.array
         '''
         img = torch.from_numpy(img).permute(0, 3, 1, 2)
-        
-        logits = unet_litmodel(img)
+
+        img = img.to(self.device)
+        logits = self.unet(img)
         
         semseg = logits.argmax(dim=1, keepdim=True)
         semseg = torch.cat([semseg==0, semseg==1, semseg==2], dim=1)
@@ -89,22 +127,75 @@ class CellSegmenter:
         return semseg
 
     @torch.no_grad()
-    def predict_wngy(img, semg):
+    def predict_wngy(self, img, semg):
         '''
         Args:
             img (N, H, W, 3) np.array
             semg (N, H, W, 1) np.array
+
+        Returns:
+            wngy (N, H, W, 1) np.array
         '''
         img = torch.from_numpy(img).permute(0, 3, 1, 2)
         semg = torch.from_numpy(semg).permute(0, 3, 1, 2)
         
-        logits = wn_litmodel(img, semg)
+        img = img.to(self.device)
+        semg = semg.to(self.device)
+        logits = self.wn(img, semg)
         
         wngy = logits.argmax(dim=1, keepdim=True)
         wngy = wngy.type(torch.float32)
         
         wngy = wngy.permute(0, 2, 3, 1).numpy()
         return wngy
+
+    @torch.no_grad()
+    def predict(self, pth_img):
+        '''
+        Args:
+            pth_img [str, iter[str]]: Path(s) to image file(s).
+        Returns:
+            instg (N, H, W, 1) np.array: Instance segmentation
+        '''
+        # sample
+        img = cv2.imread(pth_img)
+        pad_img, img = padto_divisible_by32(img)
+
+        img = img.astype(np.float32)
+        img = (img - MEAN_IMAGE) / STD_IMAGE
+
+        # batch
+        img = img[None, ...]
+        semseg = self.predict_semseg(img)
+        semg = self.pp0(semseg) 
+        wngy = self.predict_wngy(img, semg) 
+
+        # sample
+        instg = watershed_cut(wngy[0, ...], semg[0, ...])
+
+        # batch
+        instg = instg[None, ...]
+
+        return instg
+
+
+# def main():
+#     parser = _setup_parser()
+#     args = parser.parser_args()
+
+#     segmenter = CellSegmenter(args)
+
+#     df = pd.read_csv(args.csv)
+#     imgids = df['id'].unique()
+
+#     img_pths = [f'{args.dir_img}/{imgid}.png' for imgid in imgids]
+
+
+
+
+
+
+         
 
     
 
