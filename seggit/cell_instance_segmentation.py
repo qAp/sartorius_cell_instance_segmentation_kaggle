@@ -173,7 +173,6 @@ class CellSegmenter:
         # sample
         img = cv2.imread(pth_img)
         pad_img, img = padto_divisible_by32(img)
-
         img = img.astype(np.float32)
         img = (img - MEAN_IMAGE) / STD_IMAGE
 
@@ -187,7 +186,10 @@ class CellSegmenter:
         instg = watershed_cut(wngy[0, ...], semg[0, ...])
 
         # batch
-        instg = instg[None, ...]
+        instg = instg[None, 
+                      pad_img['y0']: -pad_img['y1'], 
+                      pad_img['x0']: -pad_img['x1'], 
+                      :]
 
         return instg
 
