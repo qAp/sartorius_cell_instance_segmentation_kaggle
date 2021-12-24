@@ -86,8 +86,8 @@ class CellSegmenter:
 
         self.pth_unet = self.args.get('pth_unet', PTH_UNET)
         self.pth_wn = self.args.get('pth_wn', PTH_WN)
-        assert os.path.exists(self.pth_unet)
-        assert os.path.exists(self.pth_wn)
+        assert os.path.exists(self.pth_unet), f'Cannot find {self.pth_unet}.'
+        assert os.path.exists(self.pth_wn), f'Cannot find {self.pth_wn}.'
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
