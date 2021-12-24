@@ -97,6 +97,12 @@ class CellSegmenter:
         self.wn = load_watershed_litmodel(checkpoint_path=self.pth_wn)
         self.wn.to(self.device)
 
+    @staticmethod
+    def add_argparse_args(parser):
+        add = parser.add_argument
+        add('--pth_unet', type=str, default=PTH_UNET)
+        add('--pth_wn', type=str, default=PTH_WN)
+
     def pp0(self, semseg):
         semg = semseg[..., [0]] # + semseg[..., [1]]
         return semg
