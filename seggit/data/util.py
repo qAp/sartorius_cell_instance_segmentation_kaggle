@@ -354,3 +354,40 @@ def padto_divisible_by32(a):
     return padding, a
 
 
+def instg_to_rles(instg=None):
+    '''
+    Args:
+        instg (H, W, 1) np.array: Instance segmentation
+    Returns:
+        ccids (list): cell ids
+        rles (list): run-length encodings
+    '''
+    ccids = list(np.unique(instg)[1:])
+
+    rles = []
+    for ccid in ccids:
+        ccimg = (instg == ccid)
+        rle = rle_encoding(ccimg)
+        rles.append(rle)
+        
+    return ccids, rles
+
+
+def rles_to_instg(ccids=None, rles=None, 
+                  image_height=None, image_width=None):
+    '''
+    Args:
+        ccids (list): cell ids
+        rles (list): run-length encodings
+    Returns:
+        instg (H, W, 1) np.array: Instance segmentation
+    '''
+    instg = np.zeros((image_height, image_width, 1), dtype=np.float32)
+    for ccid, rle in zip(ccids, rles):
+        semg = annotation_to_semg(rle, image_height, image_width)
+        semg = semg.astype(np.bool)
+        
+        instg[semg] = ccid
+        
+    return instg
+
