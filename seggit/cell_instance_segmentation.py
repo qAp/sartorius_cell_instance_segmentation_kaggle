@@ -136,7 +136,7 @@ class CellSegmenter:
         semseg = logits.argmax(dim=1, keepdim=True)
         semseg = torch.cat([semseg==0, semseg==1, semseg==2], dim=1)
         semseg = semseg.type(torch.float32)    
-        semseg = semseg.permute(0, 2, 3, 1).numpy()
+        semseg = semseg.permute(0, 2, 3, 1).cpu().numpy()
         return semseg
 
     @torch.no_grad()
@@ -159,7 +159,7 @@ class CellSegmenter:
         wngy = logits.argmax(dim=1, keepdim=True)
         wngy = wngy.type(torch.float32)
         
-        wngy = wngy.permute(0, 2, 3, 1).numpy()
+        wngy = wngy.permute(0, 2, 3, 1).cpu().numpy()
         return wngy
 
     @torch.no_grad()
