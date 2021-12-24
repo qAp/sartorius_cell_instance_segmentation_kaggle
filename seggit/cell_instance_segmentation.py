@@ -91,11 +91,15 @@ class CellSegmenter:
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+        print(f'Loading Unet {self.pth_unet}...', end='')
         self.unet = load_semseg_litmodel(checkpoint_path=self.pth_unet)
         self.unet.to(self.device)
+        print('done.')
 
+        print(f'Loading WN {self.pth_wn}...', end='')
         self.wn = load_watershed_litmodel(checkpoint_path=self.pth_wn)
         self.wn.to(self.device)
+        print('done.')
 
     @staticmethod
     def add_argparse_args(parser):
