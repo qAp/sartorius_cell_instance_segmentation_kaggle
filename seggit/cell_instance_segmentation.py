@@ -1,4 +1,5 @@
 
+import os
 import argparse
 import numpy as np
 import torch
@@ -14,8 +15,8 @@ from seggit.lit_models import SemSegLitModel, WatershedLitModel
 
 
 
-PTH_UNET = None
-PTH_WN = None
+PTH_UNET = 'unet.ckpt'
+PTH_WN = 'wn.ckpt'
 
 
 def load_semseg_litmodel(checkpoint_path=None):
@@ -85,6 +86,8 @@ class CellSegmenter:
 
         self.pth_unet = self.args.get('pth_unet', PTH_UNET)
         self.pth_wn = self.args.get('pth_wn', PTH_WN)
+        assert os.path.exists(self.pth_unet)
+        assert os.path.exists(self.pth_wn)
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
