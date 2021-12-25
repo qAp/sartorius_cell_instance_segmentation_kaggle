@@ -1,4 +1,11 @@
-
+command:
+  - ${env}
+  - ${interpreter}
+  - ${program}
+  - "--wandb"
+  - "--aug"
+  - "--use_softmax"
+  - ${args}
 program: training/run_segmentation.py
 method: bayes
 metric:
@@ -18,10 +25,6 @@ parameters:
     value: 512
   batch_size:
     value: 11
-  use_softmax:
-    value: true
-  aug:
-    value: true
   num_workers:
     value: 2
   lit_model_class:
