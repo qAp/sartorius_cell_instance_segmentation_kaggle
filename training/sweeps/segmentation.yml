@@ -1,0 +1,50 @@
+
+program: training/run_segmentation.py
+method: bayes
+metric:
+  goal: maximize
+  name: val_iou95
+early_terminate:
+  type: hyperband
+  min_iter: 50
+parameters:
+  dir_out:
+    value: /kaggle/working/training/logs
+  data_class:
+    value: SemSeg
+  fold:
+    value: 0
+  image_size:
+    value: 512
+  batch_size:
+    value: 11
+  use_softmax:
+    value: true
+  aug:
+    value: true
+  num_workers:
+    value: 2
+  lit_model_class:
+    value: SemSegLitModel
+  arch:
+    value: Unet
+  encoder_name:
+    value: resnet152
+  load_from_checkpoint: 
+    value: /kaggle/input/sardata-unet/training/logs/sartorius_semseg/25d8wkgn/checkpoints/fold0-epoch175-val_loss0.606-val_iou950.839.ckpt
+  loss: 
+    value: SoftmaxDiceLoss
+  lr:
+    values: [1e-6, 1e-5, 1e-4]
+  one_cycle_max_lr:
+    values: [5e-4, 1e-3, 1e-2]
+  one_cycle_total_steps: 
+    values: 400
+  gpus:
+    value: 1
+  wandb:
+    value: true
+  max_epochs:
+    value: 400
+precision:
+    value: [16, 32]
