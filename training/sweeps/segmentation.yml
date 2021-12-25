@@ -42,8 +42,6 @@ parameters:
     value: 400
   gpus:
     value: 1
-  wandb:
-    value: true
   max_epochs:
     value: 400
   precision:
