@@ -46,5 +46,5 @@ parameters:
     value: true
   max_epochs:
     value: 400
-precision:
+  precision:
     value: [16, 32]
