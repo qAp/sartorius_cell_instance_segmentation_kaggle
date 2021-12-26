@@ -35,9 +35,8 @@ def load_semseg_litmodel(checkpoint_path=None):
 
 class SemanticSegmenter:
 
-    def __init__(self, checkpoint_path=None, tta=False):
+    def __init__(self, checkpoint_path=None):
         self.checkpoint_path = checkpoint_path
-        self.tta = tta
         self.device = torch.device('cuda' if torch.cuda.is_available()
                                    else 'cpu')        
 
@@ -93,7 +92,7 @@ class SemanticSegmenter:
         return logits
 
     @torch.no_grad()
-    def predict(self, pth_img):
+    def predict(self, pth_img, tta=False):
         '''
         Args:
             pth_img [str, iter[str]]: Path(s) to image file(s).
@@ -107,7 +106,7 @@ class SemanticSegmenter:
         img = (img - MEAN_IMAGE) / STD_IMAGE
         img = img[None, ...] 
  
-        if self.tta:
+        if tta:
             logits = self.predict_logits_tta(img)
         else:
             logits = self.predict_logits(img)
