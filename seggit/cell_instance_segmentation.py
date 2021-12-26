@@ -107,19 +107,6 @@ class CellSegmenter:
         add('--pth_unet', type=str, default=PTH_UNET)
         add('--pth_wn', type=str, default=PTH_WN)
 
-    def pp0(self, semseg):
-        semg = semseg[..., [0]] # + semseg[..., [1]]
-        return semg
-
-    def pp1(self, pr):
-        semg_pred = (pr == 0) + (pr == 1)
-        semg_pred = skimage.morphology.binary_dilation(
-            semg_pred, 
-            selem=np.ones(3 * (4, ))
-            )
-        semg_pred = semg_pred.astype(np.float32)
-        return semg_pred 
-
     @torch.no_grad()
     def predict_semseg(self, img):
         '''
@@ -138,6 +125,20 @@ class CellSegmenter:
         semseg = semseg.type(torch.float32)    
         semseg = semseg.permute(0, 2, 3, 1).data.cpu().numpy()
         return semseg
+
+    def pp_semseg0(self, semseg):
+        semg = semseg[..., [0]] # + semseg[..., [1]]
+        return semg
+
+    def pp_semseg_tmp(self, pr):
+        semg_pred = (pr == 0) + (pr == 1)
+        semg_pred = skimage.morphology.binary_dilation(
+            semg_pred, 
+            selem=np.ones(3 * (4, ))
+            )
+        semg_pred = semg_pred.astype(np.float32)
+        return semg_pred 
+
 
     @torch.no_grad()
     def predict_wngy(self, img, semg):
@@ -179,7 +180,7 @@ class CellSegmenter:
         # batch
         img = img[None, ...]
         semseg = self.predict_semseg(img)
-        semg = self.pp0(semseg) 
+        semg = self.pp_semseg0(semseg) 
         wngy = self.predict_wngy(img, semg) 
 
         # sample
