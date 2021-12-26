@@ -28,9 +28,11 @@ print(f'Loading semantic segmentation model {args.checkpoint_path}...', end='')
 segmenter = SemanticSegmenter(checkpoint_path=args.checkpoint_path)
 print('done.')
 
+args_list = [(args.dir_img, args.dir_out, imgid) for imgid in imgids]
 
-def _generate_semseg(imgid):
-    pth_img = f'{args.dir_img}/{imgid}.png'
+def _generate_semseg(args):
+    dir_img, dir_out, imgid = args
+    pth_img = f'{dir_img}/{imgid}.png'
 
     semseg = segmenter.predict(pth_img)
 
@@ -38,7 +40,7 @@ def _generate_semseg(imgid):
     semseg = 255 * semseg
     semseg = semseg.astype(np.uint8)
 
-    cv2.imwrite(f'{args.dir_out}/{imgid}.png', 
+    cv2.imwrite(f'{dir_out}/{imgid}.png', 
               semseg, 
               [cv2.IMWRITE_PNG_COMPRESSION, 9])
 
@@ -52,8 +54,8 @@ def _generate_semseg(imgid):
 #         pbar.update(1)        
 
 p = multiprocessing.Pool(processes=os.cpu_count())
-with tqdm(total=len(imgids)) as pbar:
-    for imgid in p.imap(_generate_semseg, imgids):
+with tqdm(total=len(args_list)) as pbar:
+    for imgid in p.imap(_generate_semseg, args_list):
         pbar.set_description(f'Processed {imgid}')
         pbar.update(1)
 p.close()
