@@ -72,10 +72,13 @@ class SemanticSegmenter:
         rot_angles = [0, 90, 180, 270]
 
         batch_size, height, width, _ = img.shape
-        
-        logits = np.zeros((batch_size, height, width, 3), np.float32)
-        for j, flipud in enumerate(do_flipud):
-            for i, angle in enumerate(rot_angles):
+
+        logits = np.zeros(
+            (batch_size, height, width, 3), dtype=np.float32
+            )
+
+        for flipud in do_flipud:
+            for angle in rot_angles:
                 mm = img[:,::-1,:,:] if flipud else img
                 mm = np.rot90(mm, k=angle//90, axes=(1, 2))
                 
