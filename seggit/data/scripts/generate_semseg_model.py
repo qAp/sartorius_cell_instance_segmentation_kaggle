@@ -6,7 +6,7 @@ import multiprocessing
 import numpy as np
 import cv2
 
-from cell_semantic_segmentation import SemanticSegmenter
+from seggit.cell_semantic_segmentation import SemanticSegmenter
 from seggit.data.config import DIR_IMG
 
 
@@ -39,7 +39,7 @@ def _generate_semseg(imgid):
     cv2.write(f'{args.dir_out}/{imgid}.png', 
               semseg, 
               [cv2.IMWRITE_PNG_COMPRESSION, 9])
-              
+
     return imgid
 
 
