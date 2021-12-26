@@ -46,6 +46,6 @@ def _generate_semseg(imgid):
 p = multiprocessing.Pool(processes=os.cpu_count())
 with tqdm(total=len(imgids)) as pbar:
     for imgid in p.imap(_generate_semseg, imgids):
-        p.set_description(f'Processed {imgid}')
-        p.update(1)
+        pbar.set_description(f'Processed {imgid}')
+        pbar.update(1)
 p.close()
