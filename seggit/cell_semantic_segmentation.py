@@ -83,6 +83,11 @@ class SemanticSegmenter:
         img = img[None, ...]
         semseg = self.predict_semseg(img)
 
+        semseg = semseg[:, 
+                        pad_img['y0']: -pad_img['y1'],
+                        pad_img['x0']: -pad_img['x1'], 
+                        :]
+
         return semseg
 
 
