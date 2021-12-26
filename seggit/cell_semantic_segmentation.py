@@ -81,7 +81,7 @@ class SemanticSegmenter:
                 mm = img[:,::-1,:,:] if flipud else img
                 mm = np.rot90(mm, k=angle//90, axes=(1, 2))
                 
-                ll = self.predict_logits(mm)
+                ll = self.predict_logits(mm.copy())
 
                 ll = np.rot90(ll, k=(360 - angle)//90, axes=(1, 2))
                 ll = ll[:,::-1,:,:] if flipud else ll
