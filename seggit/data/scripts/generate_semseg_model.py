@@ -47,9 +47,9 @@ def _generate_semseg(args):
     return imgid
 
 
-with tqdm(total=len(imgids)) as pbar:
-    for imgid in imgids:
-        imgid = _generate_semseg(imgid)
+with tqdm(total=len(args_list)) as pbar:
+    for args in args_list:
+        imgid = _generate_semseg(args)
         pbar.set_description(f'Processed {imgid}')
         pbar.update(1)        
 
