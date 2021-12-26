@@ -34,6 +34,7 @@ def _generate_semseg(imgid):
 
     semseg = segmenter.predict(pth_img)
 
+    semseg = [0, ...]
     semseg = 255 * semseg
     semseg = semseg.astype(np.uint8)
 
