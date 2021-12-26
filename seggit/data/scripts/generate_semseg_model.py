@@ -22,6 +22,7 @@ args = parser.parse_args()
 
 os.makedirs(args.dir_out, exist_ok=True)
 imgids = [n.split('.')[0] for n in os.listdir(args.dir_img)]
+print(f'Number of images to process', len(imgids))
 
 print(f'Loading semantic segmentation model {args.checkpoint_path}...', end='')
 segmenter = SemanticSegmenter(checkpoint_path=args.checkpoint_path)
@@ -43,9 +44,15 @@ def _generate_semseg(imgid):
     return imgid
 
 
-p = multiprocessing.Pool(processes=os.cpu_count())
 with tqdm(total=len(imgids)) as pbar:
-    for imgid in p.imap(_generate_semseg, imgids):
+    for imgid in imgids:
+        imgid = _generate_semseg(imgid)
         pbar.set_description(f'Processed {imgid}')
-        pbar.update(1)
-p.close()
+        pbar.update(1)        
+
+# p = multiprocessing.Pool(processes=os.cpu_count())
+# with tqdm(total=len(imgids)) as pbar:
+#     for imgid in p.imap(_generate_semseg, imgids):
+#         pbar.set_description(f'Processed {imgid}')
+#         pbar.update(1)
+# p.close()
