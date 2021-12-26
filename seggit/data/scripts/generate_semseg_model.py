@@ -37,7 +37,7 @@ def _generate_semseg(imgid):
     semseg = 255 * semseg
     semseg = semseg.astype(np.uint8)
 
-    cv2.write(f'{args.dir_out}/{imgid}.png', 
+    cv2.imwrite(f'{args.dir_out}/{imgid}.png', 
               semseg, 
               [cv2.IMWRITE_PNG_COMPRESSION, 9])
 
