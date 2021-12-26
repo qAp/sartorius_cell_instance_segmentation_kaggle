@@ -3,10 +3,14 @@ import os
 import numpy as np
 import pandas as pd
 import cv2
+import skimage.morphology
 import torch
 import albumentations as albu
 import pytorch_lightning as pl
-from seggit.data.config import DIR_KFOLD, DIR_IMG, DIR_SEMSEG, DIR_AREA, MEAN_IMAGE, STD_IMAGE
+from seggit.data.config import (DIR_KFOLD, DIR_IMG, 
+                                DIR_SEMSEG, DIR_SEMSEG_MODEL, 
+                                DIR_AREA,
+                                MEAN_IMAGE, STD_IMAGE)
 from seggit.data.util import semg_to_dtfm, dtfm_to_uvec
 from seggit.data.transforms import default_tfms, aug_tfms
 
@@ -15,14 +19,17 @@ FOLD = 0
 IMAGE_SIZE = 512
 BATCH_SIZE = 8
 NUM_WORKERS = 0
+SELEM_WIDTH = None
+
 
 
 class InstanceDirectionRealDataset(torch.utils.data.Dataset):
-    def __init__(self, df, transform=None):
+    def __init__(self, df, transform=None, selem_width=None):
         super().__init__()
 
         self.df = df
         self.transform = transform
+        self.selem_width = selem_width
 
         self.imgids = df['id'].unique()
 
@@ -34,17 +41,20 @@ class InstanceDirectionRealDataset(torch.utils.data.Dataset):
 
         img = cv2.imread(f'{DIR_IMG}/{imgid}.png')
         semseg = cv2.imread(f'{DIR_SEMSEG}/{imgid}.png')
+        semsegm = cv2.imread(f'{DIR_SEMSEG_MODEL}/{imgid}.png')
         area = np.load(f'{DIR_AREA}/{imgid}.npy')
 
         semseg = semseg.astype(np.float32)
+        semsegm = semsegm.astype(np.float32)
  
         if self.transform:
-            mask = np.concatenate([semseg, area], axis=2)
+            mask = np.concatenate([semseg, semsegm, area], axis=2)
             tfmd = self.transform(image=img, mask=mask)
             img = tfmd['image']
             mask = tfmd['mask']
             semseg = mask[..., :3]
-            area = mask[..., [3]]
+            semsegm = mask[..., 3:6]
+            area = mask[..., [6]]
 
         img = (img - MEAN_IMAGE) / STD_IMAGE
         img = img.astype(np.float32)
@@ -55,8 +65,13 @@ class InstanceDirectionRealDataset(torch.utils.data.Dataset):
         uvec = dtfm_to_uvec(dtfm)
 
         # For model and loss input, use instance-unresolved ss,
-        # as will be expected from the Unet.
-        semg = (semseg[..., [0]] + semseg[..., [1]]) / 255
+        # as will be expected from the Unet during inference. 
+        semg = (semsegm[..., [0]] + semsegm[..., [1]]) / 255
+        if self.selem_width is not None:
+            semg = skimage.morphology.binary_dilation(
+                semg, 
+                selem=np.ones(3 * (self.selem_width, ))
+                )
 
         return img, uvec, semg, area
 
@@ -74,9 +89,10 @@ class InstanceDirectionReal(pl.LightningDataModule):
 
         self.train_transform = albu.Compose(aug_tfms(self.image_size))
         self.valid_transform = albu.Compose(default_tfms(self.image_size))
+        self.selem_width = self.args.get('selem_width', SELEM_WIDTH)
 
-        self.train_ds: InstanceDirectionMockDataset
-        self.valid_ds: InstanceDirectionMockDataset
+        self.train_ds: InstanceDirectionRealDataset
+        self.valid_ds: InstanceDirectionRealDataset
 
     @staticmethod
     def add_argparse_args(parser):
@@ -84,6 +100,7 @@ class InstanceDirectionReal(pl.LightningDataModule):
         parser.add_argument('--image_size', type=int, default=IMAGE_SIZE)
         parser.add_argument('--batch_size', type=int, default=BATCH_SIZE)
         parser.add_argument('--num_workers', type=int, default=NUM_WORKERS)
+        parser.add_argument('--selem_width', type=int, default=SELEM_WIDTH)
 
     def config(self):
         return None
@@ -103,8 +120,14 @@ class InstanceDirectionReal(pl.LightningDataModule):
         assert os.path.exists(DIR_SEMSEG), (
             f'Semantic segmentation {DIR_SEMSEG} not found.'
             'Load this or generate with ' 
-            'data/scripts/generate_mask.py'
+            'data/scripts/make_semseg_target.py'
         )
+
+        assert os.path.exists(DIR_SEMSEG_MODEL), (
+            f'Semantic segmentation {DIR_SEMSEG_MODEL} not found.'
+            'Load this or generate with ' 
+            'cell_semantic_segmentation.py'
+        )        
 
         assert os.path.exists(DIR_AREA), (
             f'Instance area {DIR_AREA} not found.'
@@ -119,14 +142,15 @@ class InstanceDirectionReal(pl.LightningDataModule):
         except FileNotFoundError:
             print(f'Fold csv files not found at {DIR_KFOLD}')
 
-        self.train_ds = InstanceDirectionMockDataset(
+        self.train_ds = InstanceDirectionRealDataset(
             df=train_df, 
-            transform=self.train_transform
-            )
-        self.valid_ds = InstanceDirectionMockDataset(
+            transform=self.train_transform,
+            selem_width=self.selem_width)
+
+        self.valid_ds = InstanceDirectionRealDataset(
             df=valid_df, 
-            transform=self.valid_transform
-            )
+            transform=self.valid_transform,
+            selem_width=self.selem_width)
 
     def train_dataloader(self):
         return torch.utils.data.DataLoader(
