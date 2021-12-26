@@ -40,7 +40,7 @@ class SemanticSegmenter:
                                    else 'cpu')        
 
         self.model = load_semseg_litmodel(checkpoint_path)
-        self.mode.to(self.device)
+        self.model.to(self.device)
 
     @torch.no_grad()
     def predict_semseg(self, img):
