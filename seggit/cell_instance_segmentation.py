@@ -54,17 +54,15 @@ class CellSegmenter:
 
         self.pth_unet = self.args.get('pth_unet', PTH_UNET)
         self.pth_wn = self.args.get('pth_wn', PTH_WN)
-        assert os.path.exists(self.pth_unet), f'Cannot find {self.pth_unet}.'
-        assert os.path.exists(self.pth_wn), f'Cannot find {self.pth_wn}.'
         self.tta_semseg = self.args.get('tta_semseg', False)
         self.tta_wngy = self.args.get('tta_wngy', False)
+        self.pp_semseg = self.args.get('pp_semseg', PP_SEMSEG)
 
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+        assert os.path.exists(self.pth_unet), f'Cannot find {self.pth_unet}.'
+        assert os.path.exists(self.pth_wn), f'Cannot find {self.pth_wn}.'
         print(f'Loading Unet {self.pth_unet}...', end='')
         self.semantic_segmenter = SemanticSegmenter(checkpoint_path=self.pth_unet)
         print('done.')
-
         print(f'Loading WN {self.pth_wn}...', end='')
         self.dwt = DeepWatershedTransform(checkpoint_path=self.pth_wn)
         print('done.')
