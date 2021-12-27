@@ -77,7 +77,7 @@ class DeepWatershedTransform:
                 mm = np.rot90(mm, k=angle//90, axes=(1, 2))
                 ss = np.rot90(ss, k=angle//90, axes=(1, 2))
 
-                ll = self.predict_logits(mm, ss)
+                ll = self.predict_logits(mm.copy(), ss.copy())
 
                 ll = ll[:,::-1,:,:] if flipud else ll
                 ll = np.rot90(ll, k=(360 - angle)//90, axes=(1, 2))
