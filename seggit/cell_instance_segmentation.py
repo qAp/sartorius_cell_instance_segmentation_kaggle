@@ -15,7 +15,7 @@ from seggit.deep_watershed_transform import DeepWatershedTransform
 
 PTH_UNET = 'unet.ckpt'
 PTH_WN = 'wn.ckpt'
-
+PP_SEMSEG = 0
 
 
 def watershed_cut(wngy, semg, threshold=1, selem_width=3):
@@ -76,19 +76,23 @@ class CellSegmenter:
         add('--pth_wn', type=str, default=PTH_WN)
         add('--tta_semseg', action='store_true', default=False)
         add('--tta_wngy', action='store_true', default=False)
+        add('--pp_semseg', type=int, default=PP_SEMSEG)
 
     def pp_semseg0(self, semseg):
         semg = semseg[..., [0]] # + semseg[..., [1]]
         return semg
 
-    def pp_semseg_tmp(self, pr):
-        semg_pred = (pr == 0) + (pr == 1)
-        semg_pred = skimage.morphology.binary_dilation(
-            semg_pred, 
-            selem=np.ones(3 * (4, ))
-            )
-        semg_pred = semg_pred.astype(np.float32)
-        return semg_pred 
+    def pp_semseg1(self, semseg):
+        semg = semseg[..., [0]] + semseg[..., [1]]
+        return semg
+
+    def pp_semseg2(self, semseg):
+        semg = semseg[..., [0]] + semseg[..., [1]]
+        semg = skimage.morphology.binary_dilation(
+            semg, selem=np.ones(3 * (4, ))
+        )
+        semg = semg.astype(np.float32)
+        return semg
 
     def predict(self, pth_img):
         '''
@@ -102,7 +106,12 @@ class CellSegmenter:
         img, semseg = self.semantic_segmenter.predict(pth_img, 
                                                       tta=self.tta_semseg)
 
-        semg = self.pp_semseg0(semseg) 
+        if self.pp_semseg == 0:
+            semg = self.pp_semseg0(semseg)
+        elif self.pp_semseg == 1:
+            semg = self.pp_semseg1(semseg)
+        elif self.pp_semseg == 2:
+            semg = self.pp_semseg2(semseg)
 
         wngy = self.dwt.predict(img[0,...], semg[0,...], tta=self.tta_wngy) 
 
