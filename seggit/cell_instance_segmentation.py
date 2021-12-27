@@ -8,46 +8,14 @@ import skimage.morphology
 
 from seggit.data.config import MEAN_IMAGE, STD_IMAGE
 from seggit.data.util import padto_divisible_by32
-from seggit.data import SemSeg
-from seggit.models.util import create_segmentation_model
-from seggit.models import WatershedNet
-from seggit.lit_models import SemSegLitModel, WatershedLitModel
+from cell_semantic_segmentation import SemanticSegmenter
+from deep_watershed_transform import DeepWatershedTransform
 
 
 
 PTH_UNET = 'unet.ckpt'
 PTH_WN = 'wn.ckpt'
 
-
-def load_semseg_litmodel(checkpoint_path=None):
-    parser = argparse.ArgumentParser()
-    SemSeg.add_argparse_args(parser)
-    SemSegLitModel.add_argparse_args(parser)
-    args = parser.parse_args([
-        '--use_softmax', 
-        '--encoder_name', 'resnet152',
-    ])
-    
-    data = SemSeg(args)
-    model = create_segmentation_model(data.config(), args)
-    
-    lit_model = SemSegLitModel.load_from_checkpoint(
-        checkpoint_path=checkpoint_path, 
-        model=model)
-    
-    lit_model.eval()
-    return lit_model
-
-
-def load_watershed_litmodel(checkpoint_path=None):
-    model = WatershedNet()
-    
-    lit_model = WatershedLitModel.load_from_checkpoint(
-        checkpoint_path=checkpoint_path,
-        model=model)
-    
-    lit_model.eval()
-    return lit_model
 
 
 def watershed_cut(wngy, semg, threshold=1, selem_width=3):
@@ -88,17 +56,17 @@ class CellSegmenter:
         self.pth_wn = self.args.get('pth_wn', PTH_WN)
         assert os.path.exists(self.pth_unet), f'Cannot find {self.pth_unet}.'
         assert os.path.exists(self.pth_wn), f'Cannot find {self.pth_wn}.'
+        self.tta_semseg = self.args.get('tta_semseg', False)
+        self.tta_wngy = self.args.get('tta_wngy', False)
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         print(f'Loading Unet {self.pth_unet}...', end='')
-        self.unet = load_semseg_litmodel(checkpoint_path=self.pth_unet)
-        self.unet.to(self.device)
+        self.semantic_segmenter = SemanticSegmenter(checkpoint_path=self.pth_unet)
         print('done.')
 
         print(f'Loading WN {self.pth_wn}...', end='')
-        self.wn = load_watershed_litmodel(checkpoint_path=self.pth_wn)
-        self.wn.to(self.device)
+        self.dwt = DeepWatershedTransform(checkpoint_path=self.pth_wn)
         print('done.')
 
     @staticmethod
@@ -106,25 +74,8 @@ class CellSegmenter:
         add = parser.add_argument
         add('--pth_unet', type=str, default=PTH_UNET)
         add('--pth_wn', type=str, default=PTH_WN)
-
-    @torch.no_grad()
-    def predict_semseg(self, img):
-        '''
-        Args:
-            img (N, H, W, 3) np.array
-        Returns:
-            semseg (N, H, W, 3) np.array
-        '''
-        img = torch.from_numpy(img).permute(0, 3, 1, 2)
-
-        img = img.to(self.device)
-        logits = self.unet(img)
-        
-        semseg = logits.argmax(dim=1, keepdim=True)
-        semseg = torch.cat([semseg==0, semseg==1, semseg==2], dim=1)
-        semseg = semseg.type(torch.float32)    
-        semseg = semseg.permute(0, 2, 3, 1).data.cpu().numpy()
-        return semseg
+        add('--tta_semseg', action='store_true', default=False)
+        add('--tta_wngy', action='store_true', default=False)
 
     def pp_semseg0(self, semseg):
         semg = semseg[..., [0]] # + semseg[..., [1]]
@@ -139,60 +90,27 @@ class CellSegmenter:
         semg_pred = semg_pred.astype(np.float32)
         return semg_pred 
 
-
-    @torch.no_grad()
-    def predict_wngy(self, img, semg):
-        '''
-        Args:
-            img (N, H, W, 3) np.array
-            semg (N, H, W, 1) np.array
-
-        Returns:
-            wngy (N, H, W, 1) np.array
-        '''
-        img = torch.from_numpy(img).permute(0, 3, 1, 2)
-        semg = torch.from_numpy(semg).permute(0, 3, 1, 2)
-        
-        img = img.to(self.device)
-        semg = semg.to(self.device)
-        logits = self.wn(img, semg)
-        
-        wngy = logits.argmax(dim=1, keepdim=True)
-        wngy = wngy.type(torch.float32)
-        
-        wngy = wngy.permute(0, 2, 3, 1).data.cpu().numpy()
-        return wngy
-
-    @torch.no_grad()
     def predict(self, pth_img):
         '''
         Args:
             pth_img [str, iter[str]]: Path(s) to image file(s).
         Returns:
-            instg (N, H, W, 1) np.array: Instance segmentation
+            img (np.array[float]): Normalised image. Shape (N, H, W, 3)
+            instg  (np.array[float]): 
+                Instance segmentation. Shape (N, H, W, 1)
         '''
-        # sample
-        img = cv2.imread(pth_img)
-        pad_img, img = padto_divisible_by32(img)
-        img = img.astype(np.float32)
-        img = (img - MEAN_IMAGE) / STD_IMAGE
+        img, semseg = self.semantic_segmenter.predict(pth_img, 
+                                                      tta=self.tta_semseg)
 
-        # batch
-        img = img[None, ...]
-        semseg = self.predict_semseg(img)
         semg = self.pp_semseg0(semseg) 
-        wngy = self.predict_wngy(img, semg) 
 
-        # sample
+        wngy = self.dwt.predict(img[0,...], semg[0,...], tta=self.tta_wngy) 
+
         instg = watershed_cut(wngy[0, ...], semg[0, ...])
 
-        # batch
-        instg = instg[None, 
-                      pad_img['y0']: -pad_img['y1'], 
-                      pad_img['x0']: -pad_img['x1'], 
-                      :]
+        instg = instg[None, ...]
 
-        return instg
+        return img, instg
 
 
 # def main():
