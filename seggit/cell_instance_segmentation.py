@@ -81,13 +81,21 @@ class CellSegmenter:
         return semg
 
     def pp_semseg1(self, semseg):
+        '''
+        semseg: Shape (N, H, W, 3)
+        semg: Shape (N, H, W, 1)
+        '''
         semg = semseg[..., [0]] + semseg[..., [1]]
         return semg
 
     def pp_semseg2(self, semseg):
+        '''
+        semseg: Shape (N, H, W, 3)
+        semg: Shape (N, H, W, 1)
+        '''
         semg = semseg[..., [0]] + semseg[..., [1]]
         semg = skimage.morphology.binary_dilation(
-            semg, selem=np.ones(3 * (4, ))
+            semg, selem=np.ones(4 * (4, ))
         )
         semg = semg.astype(np.float32)
         return semg
