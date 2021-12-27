@@ -35,5 +35,4 @@ def aug_tfms(image_size):
                 albu.MotionBlur(blur_limit=5, p=.3)
             ],
             p=0.5),
-        albu.HueSaturationValue(p=0.4)
     ]
