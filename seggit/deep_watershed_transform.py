@@ -67,7 +67,8 @@ class DeepWatershedTransform:
         batch_size, height, width, _ = img.shape
 
         logits = np.zeros(
-            (batch_size, height, width, len(WATERSHED_ENERGY_BINS) + 1)
+            (batch_size, height, width, len(WATERSHED_ENERGY_BINS) + 1),
+            dtype=np.float32
             )
 
         for flipud in do_flipud:
@@ -79,8 +80,8 @@ class DeepWatershedTransform:
 
                 ll = self.predict_logits(mm.copy(), ss.copy())
 
-                ll = ll[:,::-1,:,:] if flipud else ll
                 ll = np.rot90(ll, k=(360 - angle)//90, axes=(1, 2))
+                ll = ll[:,::-1,:,:] if flipud else ll
 
                 logits += ll
         
