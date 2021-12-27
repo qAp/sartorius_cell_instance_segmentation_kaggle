@@ -45,7 +45,7 @@ class DeepWatershedTransform:
         
         img = img.to(self.device)
         semg = semg.to(self.device)
-        logits = self.wn(img, semg)
+        logits = self.model(img, semg)
 
         logits = logits.permute(0, 2, 3, 1).data.cpu().numpy()
         return logits
