@@ -8,8 +8,8 @@ import skimage.morphology
 
 from seggit.data.config import MEAN_IMAGE, STD_IMAGE
 from seggit.data.util import padto_divisible_by32
-from cell_semantic_segmentation import SemanticSegmenter
-from deep_watershed_transform import DeepWatershedTransform
+from seggit.cell_semantic_segmentation import SemanticSegmenter
+from seggit.deep_watershed_transform import DeepWatershedTransform
 
 
 
