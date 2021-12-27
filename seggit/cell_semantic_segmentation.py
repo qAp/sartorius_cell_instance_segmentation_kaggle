@@ -97,6 +97,8 @@ class SemanticSegmenter:
         Args:
             pth_img [str, iter[str]]: Path(s) to image file(s).
         Returns:
+            img (np.array[float]): Normalised image from `pth_img`.
+                Shape (N, H, W, 3).
             semseg (N, H, W, 3) np.array: Semantic segmentation
         '''
         # sample
@@ -120,6 +122,11 @@ class SemanticSegmenter:
                         pad_img['x0']: -pad_img['x1'], 
                         :]
 
-        return semseg
+        img = img[:,         
+                  pad_img['y0']: -pad_img['y1'],
+                  pad_img['x0']: -pad_img['x1'],
+                  :]
+
+        return img, semseg
 
 
