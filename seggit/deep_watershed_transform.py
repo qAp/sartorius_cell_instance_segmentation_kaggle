@@ -91,16 +91,20 @@ class DeepWatershedTransform:
         '''
         Args:
             img (np.array[float]): 
-                Normalised image. Shape (N, H, W, 3) 
+                Normalised image. Shape (H, W, 3) 
             semg  (np.array[float]): 
-                Semantic segmentation. Shape (N, H, W, 1)
+                Semantic segmentation. Shape (H, W, 1)
 
         Returns:
             wngy (np.array[float]): 
                 Discrete watershed energy. Shape (N, H, W, 1)
         '''
         pad_img, img = padto_divisible_by32(img)
+        img = img[None, ...]
+
         pad_semg, semg = padto_divisible_by32(semg)
+        semg = semg[None, ...]
+
 
         if tta:
             logits = self.predict_logits_tta(img, semg)
