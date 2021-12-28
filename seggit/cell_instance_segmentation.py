@@ -62,8 +62,6 @@ class CellSegmenter:
 
         self.pth_unet = self.args.get('pth_unet', PTH_UNET)
         self.pth_wn = self.args.get('pth_wn', PTH_WN)
-        self.tta_semseg = self.args.get('tta_semseg', False)
-        self.tta_wngy = self.args.get('tta_wngy', False)
 
         assert os.path.exists(self.pth_unet), f'Cannot find {self.pth_unet}.'
         assert os.path.exists(self.pth_wn), f'Cannot find {self.pth_wn}.'
@@ -79,8 +77,6 @@ class CellSegmenter:
         add = parser.add_argument
         add('--pth_unet', type=str, default=PTH_UNET)
         add('--pth_wn', type=str, default=PTH_WN)
-        add('--tta_semseg', action='store_true', default=False)
-        add('--tta_wngy', action='store_true', default=False)
 
     def pp_semseg0(self, semseg):
         semg = semseg[..., [0]] # + semseg[..., [1]]
@@ -107,7 +103,8 @@ class CellSegmenter:
         return semg
 
     def predict(self, pth_img, 
-                pp_semseg=0, 
+                tta_semseg=False, pp_semseg=0, 
+                tta_wngy=False,
                 cut_threshold=1, object_min_size=20, remove_small_holes=True,
                 selem_width=3):
         '''
@@ -118,8 +115,7 @@ class CellSegmenter:
             instg  (np.array[float]): 
                 Instance segmentation. Shape (N, H, W, 1)
         '''
-        img, semseg = self.semantic_segmenter.predict(pth_img, 
-                                                      tta=self.tta_semseg)
+        img, semseg = self.semantic_segmenter.predict(pth_img, tta=tta_semseg)
 
         if pp_semseg == 0:
             semg = self.pp_semseg0(semseg)
@@ -128,7 +124,7 @@ class CellSegmenter:
         elif pp_semseg == 2:
             semg = self.pp_semseg2(semseg)
 
-        wngy = self.dwt.predict(img[0,...], semg[0,...], tta=self.tta_wngy) 
+        wngy = self.dwt.predict(img[0,...], semg[0,...], tta=tta_wngy) 
 
         instg = watershed_cut(wngy[0, ...], semg[0, ...], 
                               threshold=cut_threshold, 
