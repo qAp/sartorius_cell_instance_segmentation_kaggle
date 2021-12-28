@@ -100,10 +100,10 @@ class DeepWatershedTransform:
             wngy (np.array[float]): 
                 Discrete watershed energy. Shape (N, H, W, 1)
         '''
-        pad_img, img = padto_divisible_by32(img)
+        pad_img, img = padto_divisible_by32(img, mode='symmetric')
         img = img[None, ...]
 
-        pad_semg, semg = padto_divisible_by32(semg)
+        pad_semg, semg = padto_divisible_by32(semg, mode='symmetric')
         semg = semg[None, ...]
 
 
