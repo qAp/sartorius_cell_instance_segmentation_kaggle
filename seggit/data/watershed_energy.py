@@ -12,7 +12,7 @@ from seggit.data.config import DIR_KFOLD, DIR_IMG, DIR_SEMSEG, DIR_AREA
 from seggit.data.config import MEAN_IMAGE, STD_IMAGE
 from seggit.data.config import WATERSHED_ENERGY_BINS
 from seggit.data.util import semg_to_dtfm, dtfm_to_uvec, dtfm_to_wngy
-from seggit.data.transforms import default_tfms, aug_tfms
+from seggit.data.transforms import default_tfms
 
 
 
@@ -21,6 +21,21 @@ IMAGE_SIZE = 512
 BATCH_SIZE = 8
 NUM_WORKERS = 0
 
+
+def aug_tfms(image_size):
+    return [
+        albu.HorizontalFlip(p=0.5),
+        albu.ShiftScaleRotate(shift_limit=0.,
+                              scale_limit=0.3,
+                              rotate_limit=45,
+                              p=.7,
+                              border_mode=0),
+        albu.PadIfNeeded(min_height=520, min_width=520,
+                         always_apply=True, border_mode=0),
+        albu.RandomCrop(height=image_size, width=image_size,
+                        always_apply=True),
+        albu.Perspective(p=.2),
+    ]
 
 
 class WatershedEnergyDataset(torch.utils.data.Dataset):
