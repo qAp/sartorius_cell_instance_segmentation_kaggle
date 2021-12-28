@@ -103,7 +103,7 @@ class SemanticSegmenter:
         '''
         # sample
         img = cv2.imread(pth_img)
-        pad_img, img = padto_divisible_by32(img)
+        pad_img, img = padto_divisible_by32(img, mode='symmetric')
         img = img.astype(np.float32)
         img = (img - MEAN_IMAGE) / STD_IMAGE
         img = img[None, ...] 
