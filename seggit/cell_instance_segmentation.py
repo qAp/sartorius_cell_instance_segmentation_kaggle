@@ -18,7 +18,9 @@ PTH_WN = 'wn.ckpt'
 
 
 
-def watershed_cut(wngy, semg, threshold=1, selem_width=3):
+def watershed_cut(wngy, semg, 
+                  threshold=1, object_min_size=20, remove_small_holes=True,
+                  selem_width=3):
     '''
     Args:
         wngy (H, W, 1) np.array float
@@ -27,11 +29,17 @@ def watershed_cut(wngy, semg, threshold=1, selem_width=3):
         cclabels_out (H, W, 1) np.array float: Instance IDs
     '''
     semg = semg.astype(np.bool)
+
     ccimg = (wngy > threshold) * semg
-    ccimg_nosmall = skimage.morphology.remove_small_objects(ccimg, 
-                                                            min_size=20)
-    ccimg_nohole = skimage.morphology.remove_small_holes(ccimg_nosmall)
-    cclabels = skimage.morphology.label(ccimg_nohole)
+
+    if object_min_size is not None:
+        ccimg = skimage.morphology.remove_small_objects(
+            ccimg, min_size=object_min_size)
+
+    if remove_small_holes:
+        ccimg = skimage.morphology.remove_small_holes(ccimg)
+
+    cclabels = skimage.morphology.label(ccimg)
     
     ccids = np.unique(cclabels)[1:]
 
@@ -98,7 +106,10 @@ class CellSegmenter:
         semg = semg.astype(np.float32)
         return semg
 
-    def predict(self, pth_img, pp_semseg=0):
+    def predict(self, pth_img, 
+                pp_semseg=0, 
+                cut_threshold=1, object_min_size=20, remove_small_holes=True,
+                selem_width=3):
         '''
         Args:
             pth_img [str, iter[str]]: Path(s) to image file(s).
@@ -119,7 +130,11 @@ class CellSegmenter:
 
         wngy = self.dwt.predict(img[0,...], semg[0,...], tta=self.tta_wngy) 
 
-        instg = watershed_cut(wngy[0, ...], semg[0, ...])
+        instg = watershed_cut(wngy[0, ...], semg[0, ...], 
+                              threshold=cut_threshold, 
+                              object_min_size=object_min_size, 
+                              remove_small_holes=remove_small_holes,
+                              selem_width=selem_width)
 
         instg = instg[None, ...]
 
