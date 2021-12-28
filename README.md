@@ -22,7 +22,7 @@ python seggit/training/run_segmentation.py
 3. To make inference:
 ```
 from seggit.cell_semantic_segmentation import SemanticSegmenter
-segmenter = SemanticSegmenter(checkpoint_path=best.pth)
+segmenter = SemanticSegmenter(checkpoint_path='best.pth')
 img, semseg = segmenter.predict('sample.png')
 ```
 
