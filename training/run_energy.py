@@ -24,6 +24,7 @@ def _setup_parser():
     add('--lit_model_class', type=str, default='WatershedEnergyLitModel')
     add('--dir_out', type=str, default='training/logs')
     add('--wandb', action='store_true', default=False)
+    add('--load_from_checkpoint', type=str, default=None)
 
     args, _ = parser.parse_known_args()
     data_class = _import_class(f'seggit.data.{args.data_class}')
@@ -53,7 +54,13 @@ def main():
 
     model = model_class(data_config=data.config(), args=args)
 
-    lit_model = lit_model_class(model=model, args=args)
+    if args.load_from_checkpoint is not None:
+        lit_model = lit_model_class.load_from_checkpoint(
+            checkpoint_path=args.load_from_checkpoint, 
+            model=model, 
+            args=args)
+    else:
+        lit_model = lit_model_class(model=model, args=args)
 
     logger = pl.loggers.TensorBoardLogger(args.dir_out)
     
