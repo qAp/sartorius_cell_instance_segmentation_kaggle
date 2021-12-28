@@ -2,36 +2,30 @@
 # A solution to the Sartorius Cell Instance Segmentation Kaggle
 https://www.kaggle.com/c/sartorius-cell-instance-segmentation
 
-# Challenge to-do list
-- [ ] Use different image tranformations for validation.
-- [ ] Monitor validation loss, instead of validation metric, for callbacks.
-- [ ] Keep the channel dimension of mask through training like in segmentation_models_pytorch?
-- [x] Get segmentation training going.
-- [x] Generate normalised gradient of distance transform for training Direction Net.
-- [x] Implement direction loss.
-- [x] Construct Direction Net (DN).
-- [x] Make datamodule for Direction Net training.
-- [x] Get Direction Net training going.
-- [x] Use the unique distance transform values of the image with largest range as the discrete watershed energy levels.  Try number of energy levels between 13 and 20.
-- [x] Generate watershed energy maps. 
-- [x] Build Watershed Transform Network (WTN)
-- [x] Get WTN training going.
-- [ ] Check if trained Unet does something.
-- [ ] Pass sample inputs through Unet, DN and WTN and see if outputs are reasonable.
-- [ ] Post-process sample watershed energy maps to get instances.
-- [ ] Check DN architecture.
-- [ ] Check direction loss definition.
-- [ ] Check architecture of WTN.
-- [ ] Check definition of watershed loss.
 
+# Solution summary
+1. Semantic segmentation by Unet.
+2. Instance segmentation by further processing of semantic segmentation with [Deep Watershed Transform](https://arxiv.org/pdf/1611.08303.pdf).
 
-
-# Overall Architecture
+Deep Watershed Transform Network:  
 <img src="images/direction_net.png" width=900 height=350>
 
+# Semantic segmentation training
+1. To generate training target:
+```
+python seggit/data/scripts/make_semseg_target.py
+```
+2. To make a training run:
+```
+python seggit/training/run_segmentation.py
+```
+3. To make inference:
+```
+from seggit.cell_semantic_segmentation import SemanticSegmenter
+segmenter = SemanticSegmenter(checkpoint_path=best.pth)
+img, semseg = segmenter.predict('sample.png')
+```
 
-# Notes on Deep Watershed Transform
-*Watershed transform* is a method that comes from mathematical morphology.
 
 
 
