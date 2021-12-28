@@ -46,7 +46,7 @@ python seggit/data/scripts/make_wngy.py
 python training/run_energy.py
 ```
 
-## Deep Watershed Transform end-to-end (WN)
+## Deep Watershed Transform end-to-end (DN + WTN = WN)
 1. To make a training run:
 ```
 python training/run_watershed.py
@@ -92,5 +92,3 @@ img, instg = segmenter.predict('sample.png')
 - https://github.com/YukangWang/TextField
 
 
-# Questions
-1. What are 1x1 convolutions for?
