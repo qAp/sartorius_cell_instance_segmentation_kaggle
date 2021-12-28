@@ -15,7 +15,7 @@ from seggit.deep_watershed_transform import DeepWatershedTransform
 
 PTH_UNET = 'unet.ckpt'
 PTH_WN = 'wn.ckpt'
-PP_SEMSEG = 0
+
 
 
 def watershed_cut(wngy, semg, threshold=1, selem_width=3):
@@ -56,7 +56,6 @@ class CellSegmenter:
         self.pth_wn = self.args.get('pth_wn', PTH_WN)
         self.tta_semseg = self.args.get('tta_semseg', False)
         self.tta_wngy = self.args.get('tta_wngy', False)
-        self.pp_semseg = self.args.get('pp_semseg', PP_SEMSEG)
 
         assert os.path.exists(self.pth_unet), f'Cannot find {self.pth_unet}.'
         assert os.path.exists(self.pth_wn), f'Cannot find {self.pth_wn}.'
@@ -74,7 +73,6 @@ class CellSegmenter:
         add('--pth_wn', type=str, default=PTH_WN)
         add('--tta_semseg', action='store_true', default=False)
         add('--tta_wngy', action='store_true', default=False)
-        add('--pp_semseg', type=int, default=PP_SEMSEG)
 
     def pp_semseg0(self, semseg):
         semg = semseg[..., [0]] # + semseg[..., [1]]
@@ -100,7 +98,7 @@ class CellSegmenter:
         semg = semg.astype(np.float32)
         return semg
 
-    def predict(self, pth_img):
+    def predict(self, pth_img, pp_semseg=0):
         '''
         Args:
             pth_img [str, iter[str]]: Path(s) to image file(s).
@@ -112,11 +110,11 @@ class CellSegmenter:
         img, semseg = self.semantic_segmenter.predict(pth_img, 
                                                       tta=self.tta_semseg)
 
-        if self.pp_semseg == 0:
+        if pp_semseg == 0:
             semg = self.pp_semseg0(semseg)
-        elif self.pp_semseg == 1:
+        elif pp_semseg == 1:
             semg = self.pp_semseg1(semseg)
-        elif self.pp_semseg == 2:
+        elif pp_semseg == 2:
             semg = self.pp_semseg2(semseg)
 
         wngy = self.dwt.predict(img[0,...], semg[0,...], tta=self.tta_wngy) 
