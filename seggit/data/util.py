@@ -216,6 +216,8 @@ def generate_instance_area(df, image_height=520, image_width=704):
 
         area[cell] = cell.sum()
 
+    background = (area == 0)
+    area[background] = background.sum()
     return area
 
 
