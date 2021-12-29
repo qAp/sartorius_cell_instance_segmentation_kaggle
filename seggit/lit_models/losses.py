@@ -115,10 +115,7 @@ class WatershedEnergyLoss1(nn.Module):
         semg = semg.permute(0, 2, 3, 1).reshape(-1).type(torch.bool)
         area = area.permute(0, 2, 3, 1).reshape(-1, 1)
 
-        logits = logits[semg, :]
-        wngy = wngy[semg]
-        area = area[semg]
-
+        area[area == 0] = area.max()
         weight = 1 / area.sqrt()
 
         predSoftmax = F.softmax(logits, dim=1)
