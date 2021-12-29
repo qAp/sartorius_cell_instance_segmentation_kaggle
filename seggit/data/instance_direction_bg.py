@@ -63,7 +63,7 @@ class InstanceDirectionBGDataset(torch.utils.data.Dataset):
         return img, uvec, semseg, area
 
 
-class InstanceDirectionMock(pl.LightningDataModule):
+class InstanceDirectionBG(pl.LightningDataModule):
     def __init__(self, args=None):
         super().__init__()
         self.args = vars(args) if args is not None else {}
@@ -75,10 +75,10 @@ class InstanceDirectionMock(pl.LightningDataModule):
         self.on_gpu = isinstance(self.args.get('gpus', None) , (int, str))
 
         self.train_transform = albu.Compose(aug_tfms(self.image_size))
-        self.valid_transform = albu.Compose(default_tfms(self.image_size))
+        self.valid_transform = albu.Compose(aug_tfms(self.image_size))
 
-        self.train_ds: InstanceDirectionMockDataset
-        self.valid_ds: InstanceDirectionMockDataset
+        self.train_ds: InstanceDirectionBGDataset
+        self.valid_ds: InstanceDirectionBGDataset
 
     @staticmethod
     def add_argparse_args(parser):
@@ -121,11 +121,11 @@ class InstanceDirectionMock(pl.LightningDataModule):
         except FileNotFoundError:
             print(f'Fold csv files not found at {DIR_KFOLD}')
 
-        self.train_ds = InstanceDirectionMockDataset(
+        self.train_ds = InstanceDirectionBGDataset(
             df=train_df, 
             transform=self.train_transform
             )
-        self.valid_ds = InstanceDirectionMockDataset(
+        self.valid_ds = InstanceDirectionBGDataset(
             df=valid_df, 
             transform=self.valid_transform
             )
