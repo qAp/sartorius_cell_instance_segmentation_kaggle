@@ -206,6 +206,13 @@ def generate_instance_area(df, image_height=520, image_width=704):
     '''
     Return each pixel's instance area.
     '''
+    if 'cell_area' not in df:
+        cell_area_list = []
+        for r in df.itertuples():
+            semg = annotation_to_semg(r.annotation, image_height, image_width)
+            cell_area_list.append(semg.sum())
+        df['cell_area'] = np.array(cell_area_list)
+
     df = df.sort_values('cell_area', axis=0, ascending=False)
     
     area = np.zeros((image_height, image_width, 1), dtype=np.float32)
