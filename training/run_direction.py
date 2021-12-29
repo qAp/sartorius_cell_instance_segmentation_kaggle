@@ -86,7 +86,11 @@ def main():
         auto_insert_metric_name=False,
         save_last=True)
 
-    callbacks = [early_stopping_callback, model_checkpoint_callback, ]
+    lr_monitor_callback = pl.callbacks.LearningRateMonitor()
+
+    callbacks = [early_stopping_callback, 
+                 model_checkpoint_callback, 
+                 lr_monitor_callback]
 
     trainer = pl.Trainer.from_argparse_args(args,
                                             logger=logger,
