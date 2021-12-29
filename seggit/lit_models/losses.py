@@ -42,6 +42,8 @@ class DirectionLoss(nn.Module):
         targ = targ.permute(1, 0, 2, 3).reshape(2, -1)
         mask = mask.permute(1, 0, 2, 3).reshape(1, -1).type(torch.bool)
         instance_area = instance_area.permute(1, 0, 2, 3).reshape(1, -1)
+        
+        print('Checking instance area')
         assert (instance_area == 0).sum() == 0
 
         dotprod = (pred * targ).sum(dim=0, keepdims=True)
