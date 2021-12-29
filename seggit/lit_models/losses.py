@@ -44,20 +44,17 @@ class DirectionLoss(nn.Module):
         instance_area = instance_area.permute(1, 0, 2, 3).reshape(1, -1)
 
         dotprod = (pred * targ).sum(dim=0, keepdims=True)
-        dotprod = dotprod[mask]
-
-        instance_area = instance_area[mask]
 
         angle_squared = (dotprod
                          .clamp(min=-1 + self.epsilon, max=1 - self.epsilon)
                          .acos()
                          .pow(2)
                          )
-
         weights = 1 / instance_area.sqrt()
+
         weighted_sum = (weights * angle_squared).sum()
 
-        return weighted_sum / (mask.sum() + 1)
+        return weighted_sum / (len(mask.ravel()) + 1)        
 
  
 class WatershedEnergyLoss(nn.Module):
