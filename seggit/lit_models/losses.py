@@ -56,8 +56,7 @@ class DirectionLoss(nn.Module):
 
         weighted_sum = (weights * angle_squared).sum()
 
-        # return weighted_sum / (len(mask.ravel()) + 1)        
-        return weighted_sum / (mask.sum() + 1)
+        return weighted_sum / (len(mask.ravel()) + 1)        
 
  
 class WatershedEnergyLoss(nn.Module):
