@@ -6,7 +6,8 @@ import cv2
 import torch
 import albumentations as albu
 import pytorch_lightning as pl
-from seggit.data.config import DIR_KFOLD, DIR_IMG, DIR_SEMSEG, DIR_AREA, MEAN_IMAGE, STD_IMAGE
+from seggit.data.config import (DIR_KFOLD, DIR_IMG, DIR_SEMSEG, 
+                                DIR_AREA, MEAN_IMAGE, STD_IMAGE)
 from seggit.data.util import semg_to_dtfm, dtfm_to_uvec
 from seggit.data.transforms import default_tfms, aug_tfms
 
@@ -49,16 +50,17 @@ class InstanceDirectionBGDataset(torch.utils.data.Dataset):
         img = (img - MEAN_IMAGE) / STD_IMAGE
         img = img.astype(np.float32)
 
-        # G.t uvec needs to be from instance-resolved ss 
-        semg = semseg[..., [0]] / 255
-        dtfm = semg_to_dtfm(semg)
-        uvec = dtfm_to_uvec(dtfm)
+        semseg /= 255
 
-        # For model and loss input, use instance-unresolved ss,
-        # as will be expected from the Unet.
-        semg = (semseg[..., [0]] + semseg[..., [1]]) / 255
+        dtfm = semg_to_dtfm(semseg[..., [0]])
+        uvec_cells = dtfm_to_uvec(dtfm)
 
-        return img, uvec, semg, area
+        dtfm = semg_to_dtfm(semseg[..., [1]] + semseg[..., [2]])
+        uvec_bg = dtfm_to_uvec(dtfm)
+
+        uvec = uvec_cells + uvec_bg
+
+        return img, uvec, semseg, area
 
 
 class InstanceDirectionMock(pl.LightningDataModule):
