@@ -9,7 +9,7 @@ OPTIMIZER = 'Adam'
 ONE_CYCLE_TOTAL_STEPS = 100
 
 
-class InstanceDirectionMockLitModel(pl.LightningModule):
+class InstanceDirectionBGLitModel(pl.LightningModule):
     def __init__(self, model=None, args=None):
         super().__init__()
         self.model = model
