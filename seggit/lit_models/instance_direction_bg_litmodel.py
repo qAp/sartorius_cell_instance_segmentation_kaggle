@@ -53,30 +53,32 @@ class InstanceDirectionMockLitModel(pl.LightningModule):
             return {'optimizer': optimizer, 'lr_scheduler': lr_scheduler}
 
     def training_step(self, batch, batch_idx):
-        img, uvec, semg, area = batch
+        img, uvec, semseg, area = batch
 
         img = img.permute(0, 3, 1, 2)
         uvec = uvec.permute(0, 3, 1, 2)
-        semg = semg.permute(0, 3, 1, 2)
+        semseg = semseg.permute(0, 3, 1, 2)
         area = area.permute(0, 3, 1, 2)
 
-        logits = self(img, semg)
+        logits = self(img, semseg)
 
-        loss = self.train_loss(logits, uvec, semg, area)
+        ss = semseg.sum(dim=1, keepdim=True)
+        loss = self.train_loss(logits, uvec, ss, area)
 
         self.log('train_loss', loss, on_step=False, on_epoch=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        img, uvec, semg, area = batch 
+        img, uvec, semseg, area = batch 
 
         img = img.permute(0, 3, 1, 2)
         uvec = uvec.permute(0, 3, 1, 2)
-        semg = semg.permute(0, 3, 1, 2)
+        semseg = semseg.permute(0, 3, 1, 2)
         area = area.permute(0, 3, 1, 2)
 
-        logits = self(img, semg)
+        logits = self(img, semseg)
 
-        loss = self.val_loss(logits, uvec, semg, area)
+        ss = semseg.sum(dim=1, keepdim=True)
+        loss = self.train_loss(logits, uvec, ss, area)
 
         self.log('val_loss', loss, prog_bar=True)
