@@ -1,6 +1,7 @@
 from .base import BaseLitModel
 from .instance_direction_litmodel import InstanceDirectionLitModel
 from .instance_direction_mock_litmodel import InstanceDirectionMockLitModel
+from .instance_direction_bg_litmodel import InstanceDirectionBGLitModel
 from .watershed_energy_litmodel import WatershedEnergyLitModel
 from .watershed_litmodel import WatershedLitModel
 from .semseg_litmodel import SemSegLitModel
