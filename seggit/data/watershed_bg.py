@@ -11,7 +11,7 @@ from seggit.data.config import DIR_KFOLD, DIR_IMG, DIR_SEMSEG, DIR_AREA
 from seggit.data.config import MEAN_IMAGE, STD_IMAGE
 from seggit.data.config import WATERSHED_ENERGY_BINS
 from seggit.data.util import semg_to_dtfm, dtfm_to_uvec, dtfm_to_wngy
-from seggit.data.transforms import default_tfms, aug_tfms
+from seggit.data.transforms import default_tfms
 
 
 
@@ -23,7 +23,40 @@ NUM_WORKERS = 0
 
 
 
-class WatershedDataset(torch.utils.data.Dataset):
+def aug_tfms(image_size):
+    return [
+        albu.HorizontalFlip(p=0.5),
+        albu.ShiftScaleRotate(shift_limit=0.,
+                              scale_limit=0.3,
+                              rotate_limit=45,
+                              p=.7,
+                              border_mode=cv2.BORDER_REFLECT_101),
+        albu.PadIfNeeded(min_height=520, min_width=520,
+                         always_apply=True, 
+                         border_mode=cv2.BORDER_REFLECT_101),
+        albu.RandomCrop(height=image_size, width=image_size,
+                        always_apply=True),
+        albu.GaussNoise(p=.5),
+        albu.Perspective(p=.2),
+        albu.OneOf(
+            [
+                albu.CLAHE(p=.5),
+                albu.RandomBrightnessContrast(p=.5),
+                albu.RandomGamma(p=.2)
+            ],
+            p=0.4),
+        albu.OneOf(
+            [
+                albu.Sharpen(p=.3),
+                albu.Blur(blur_limit=5, p=.3),
+                albu.MotionBlur(blur_limit=5, p=.3)
+            ],
+            p=0.5),
+    ]
+
+
+
+class WatershedBGDataset(torch.utils.data.Dataset):
 
     def __init__(self, df, transform=None):
         super().__init__()
@@ -54,15 +87,21 @@ class WatershedDataset(torch.utils.data.Dataset):
         img = (img - MEAN_IMAGE) / STD_IMAGE
         img = img.astype(np.float32)
 
-        semg = semseg[..., [0]] / 255
-        dtfm = semg_to_dtfm(semg)
-        wngy = dtfm_to_wngy(dtfm)
+        semseg /= 255
 
-        return img, wngy, semg, area
+        dtfm = semg_to_dtfm(semseg[...,[0]])
+        wngy_cells = dtfm_to_wngy(dtfm)
+
+        dtfm = semg_to_dtfm(semseg[...,[1]] + semseg[...,[2]])
+        wngy_bg = dtfm_to_wngy(dtfm)
+
+        wngy = wngy_cells + wngy_bg
+
+        return img, wngy, semseg, area
 
 
 
-class Watershed(pl.LightningDataModule):
+class WatershedBG(pl.LightningDataModule):
 
     def __init__(self, args=None):
         super().__init__()
@@ -75,8 +114,8 @@ class Watershed(pl.LightningDataModule):
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
         self.on_gpu = isinstance(self.args.get('gpus', None), (int, str))
 
-        self.train_ds: WatershedDataset
-        self.valid_ds: WatershedDataset
+        self.train_ds: WatershedBGDataset
+        self.valid_ds: WatershedBGDataset
 
     def config(self):
         return None
@@ -115,11 +154,11 @@ class Watershed(pl.LightningDataModule):
         df_train = pd.read_csv(f'{DIR_KFOLD}/train_fold{self.fold}.csv')
         df_valid = pd.read_csv(f'{DIR_KFOLD}/valid_fold{self.fold}.csv')
 
-        self.train_ds = WatershedDataset(
+        self.train_ds = WatershedBGDataset(
             df_train, 
             transform=albu.Compose(aug_tfms(self.image_size))
             )
-        self.valid_ds = WatershedDataset(
+        self.valid_ds = WatershedBGDataset(
             df_valid, 
             transform=albu.Compose(default_tfms(self.image_size))
             )
