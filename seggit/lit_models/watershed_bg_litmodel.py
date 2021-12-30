@@ -23,7 +23,7 @@ def _import_class(module_class_name):
     return getattr(module, class_name)
 
 
-class WatershedLitModel(pl.LightningModule):
+class WatershedBGLitModel(pl.LightningModule):
     def __init__(self, model, args=None):
         super().__init__()
         self.model = model
@@ -72,33 +72,36 @@ class WatershedLitModel(pl.LightningModule):
             return {'optimizer': optimizer, 'lr_scheduler': lr_scheduler}
 
     def training_step(self, batch, batch_idx):
-        img, wngy, semg, area  = batch
+        img, wngy, semseg, area  = batch
 
         img = img.permute(0, 3, 1, 2)
         wngy = wngy.permute(0, 3, 1, 2)
-        semg = semg.permute(0, 3, 1, 2)
+        semseg = semseg.permute(0, 3, 1, 2)
         area = area.permute(0, 3, 1, 2)
 
-        logits = self(img, semg)
+        logits = self(img, semseg)
 
-        loss = self.train_loss(logits, wngy, semg, area)
+        ss = semseg.sum(dim=1, keepdim=True)
+        loss = self.train_loss(logits, wngy, ss, area)
         self.log('train_loss', loss, on_step=False, on_epoch=True)
 
         return loss
 
     def validation_step(self, batch, batch_idx):
-        img, wngy, semg, area = batch
+        img, wngy, semseg, area = batch
 
         img = img.permute(0, 3, 1, 2)
         wngy = wngy.permute(0, 3, 1, 2)
-        semg = semg.permute(0, 3, 1, 2)
+        semseg = semseg.permute(0, 3, 1, 2)
         area = area.permute(0, 3, 1, 2)
 
-        logits = self(img, semg)
+        logits = self(img, semseg)
 
-        loss = self.val_loss(logits, wngy, semg, area)
+        ss = semseg.sum(dim=1, keepdim=True)
+        
+        loss = self.val_loss(logits, wngy, ss, area)
         self.log('val_loss', loss, prog_bar=True)
 
-        metric = self.metric_func(logits, wngy, semg)
+        metric = self.metric_func(logits, wngy, ss)
         self.log('val_ncorrect', metric, 
                  on_step=False, on_epoch=True, prog_bar=True)
