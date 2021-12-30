@@ -160,7 +160,7 @@ class WatershedBG(pl.LightningDataModule):
             )
         self.valid_ds = WatershedBGDataset(
             df_valid, 
-            transform=albu.Compose(default_tfms(self.image_size))
+            transform=albu.Compose(aug_tfms(self.image_size))
             )
 
     def train_dataloader(self):
