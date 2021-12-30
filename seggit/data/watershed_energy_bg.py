@@ -38,7 +38,7 @@ def aug_tfms(image_size):
     ]
 
 
-class WatershedEnergyDataset(torch.utils.data.Dataset):
+class WatershedEnergyBGDataset(torch.utils.data.Dataset):
     def __init__(self, df, transform=None):
         super().__init__()
 
@@ -70,16 +70,24 @@ class WatershedEnergyDataset(torch.utils.data.Dataset):
         img = (img - MEAN_IMAGE) / STD_IMAGE
         img = img.astype(np.float32)
 
-        semg = semseg[..., [0]] / 255
-        dtfm = semg_to_dtfm(semg)
-        uvec = dtfm_to_uvec(dtfm)
-        wngy = dtfm_to_wngy(dtfm)
+        semseg /= 255
 
-        return uvec, wngy, semg, area
+        dtfm = semg_to_dtfm(semseg[..., [0]])
+        uvec_cells = dtfm_to_uvec(dtfm)
+        wngy_cells = dtfm_to_wngy(dtfm)
+
+        dtfm = semg_to_dtfm(semseg[...,[1]] + semseg[...,[2]])
+        uvec_bg = dtfm_to_uvec(dtfm)
+        wngy_bg = dtfm_to_wngy(dtfm)
+
+        uvec = uvec_cells + uvec_bg
+        wngy = wngy_cells + wngy_bg
+
+        return uvec, wngy, semseg, area
 
 
 
-class WatershedEnergy(pl.LightningDataModule):
+class WatershedEnergyBG(pl.LightningDataModule):
     def __init__(self, args=None):
         super().__init__()
 
@@ -91,8 +99,8 @@ class WatershedEnergy(pl.LightningDataModule):
         self.num_workers = self.args.get('num_workers', NUM_WORKERS)
         self.on_gpu = isinstance(self.args.get('gpus', None), (int, str))
 
-        self.train_ds: WatershedEnergyDataset
-        self.valid_ds: WatershedEnergyDataset
+        self.train_ds: WatershedEnergyBGDataset
+        self.valid_ds: WatershedEnergyBGDataset
 
     def config(self):
         return None
@@ -131,11 +139,11 @@ class WatershedEnergy(pl.LightningDataModule):
         df_train = pd.read_csv(f'{DIR_KFOLD}/train_fold{self.fold}.csv')
         df_valid = pd.read_csv(f'{DIR_KFOLD}/valid_fold{self.fold}.csv')
 
-        self.train_ds = WatershedEnergyDataset(
+        self.train_ds = WatershedEnergyBGDataset(
             df_train, 
             transform=albu.Compose(aug_tfms(self.image_size))
             )
-        self.valid_ds = WatershedEnergyDataset(
+        self.valid_ds = WatershedEnergyBGDataset(
             df_valid, 
             transform=albu.Compose(aug_tfms(self.image_size))
             )
