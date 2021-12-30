@@ -3,9 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import seggit
-from seggit.models import DirectionNetMock
+from seggit.models import DirectionNetBG
 from seggit.models import WatershedTransformNet
-from seggit.lit_models import InstanceDirectionMockLitModel
+from seggit.lit_models import InstanceDirectionBGLitModel
 from seggit.lit_models import WatershedEnergyLitModel
 
 
@@ -23,13 +23,13 @@ def net_params():
     return params
 
 
-class WatershedNet(nn.Module):
+class WatershedNetBG(nn.Module):
     def __init__(self, data_config=None, args=None):
         super().__init__()
 
         self.args = vars(args) if args is not None else {}
 
-        self.dn = DirectionNetMock(data_config, args)
+        self.dn = DirectionNetBG(data_config, args)
         self.wtn = WatershedTransformNet(data_config, args)
 
         self.pretrained_dn = self.args.get('pretrained_dn', PRETRAINED_DN)
@@ -38,12 +38,12 @@ class WatershedNet(nn.Module):
         self.init_model_parameters()
 
     def init_model_parameters(self):
-        dn = DirectionNetMock()
+        dn = DirectionNetBG()
         wtn = WatershedTransformNet()
 
         if self.pretrained_dn is not None:
             assert os.path.exists(self.pretrained_dn)
-            dn_litmodel = InstanceDirectionMockLitModel.load_from_checkpoint(
+            dn_litmodel = InstanceDirectionBGLitModel.load_from_checkpoint(
                 checkpoint_path=self.pretrained_dn, model=dn)
             self.dn = dn_litmodel.model
             print(f'Loaded pretrained DN: {self.pretrained_dn}')
@@ -62,18 +62,18 @@ class WatershedNet(nn.Module):
     @staticmethod
     def add_argparse_args(parser):
         add = parser.add_argument
-        DirectionNetMock.add_argparse_args(parser)
+        DirectionNetBG.add_argparse_args(parser)
         WatershedTransformNet.add_argparse_args(parser)
         add('--pretrained_dn', type=str, default=PRETRAINED_DN)
         add('--pretrained_wtn', type=str, default=PRETRAINED_WTN)
 
-    def forward(self, img, semg):
+    def forward(self, img, semseg):
         '''
         Args:
             img (N, 3x1, H, W )
-            semg (N, 1, H, W)
+            semseg (N, 3, H, W)
         '''
-        uvec = self.dn(img, semg)        
+        uvec = self.dn(img, semseg)        
         logits = self.wtn(uvec)
         return logits
 
