@@ -9,7 +9,7 @@ import skimage.morphology
 from seggit.data.config import MEAN_IMAGE, STD_IMAGE
 from seggit.data.util import padto_divisible_by32
 from seggit.cell_semantic_segmentation import SemanticSegmenter
-from seggit.deep_watershed_transform import DeepWatershedTransform
+from seggit.deep_watershed_transform_bg import DeepWatershedBGTransform
 
 
 
@@ -69,7 +69,7 @@ class CellSegmenter:
         self.semantic_segmenter = SemanticSegmenter(checkpoint_path=self.pth_unet)
         print('done.')
         print(f'Loading WN {self.pth_wn}...', end='')
-        self.dwt = DeepWatershedTransform(checkpoint_path=self.pth_wn)
+        self.dwt = DeepWatershedBGTransform(checkpoint_path=self.pth_wn)
         print('done.')
 
     @staticmethod
@@ -79,6 +79,10 @@ class CellSegmenter:
         add('--pth_wn', type=str, default=PTH_WN)
 
     def pp_semseg0(self, semseg):
+        '''
+        semseg: Shape (N, H, W, 3)
+        semg: Shape (N, H, W, 1)
+        '''        
         semg = semseg[..., [0]] # + semseg[..., [1]]
         return semg
 
@@ -117,14 +121,14 @@ class CellSegmenter:
         '''
         img, semseg = self.semantic_segmenter.predict(pth_img, tta=tta_semseg)
 
+        wngy = self.dwt.predict(img[0,...], semseg[0,...], tta=tta_wngy) 
+
         if pp_semseg == 0:
             semg = self.pp_semseg0(semseg)
         elif pp_semseg == 1:
             semg = self.pp_semseg1(semseg)
         elif pp_semseg == 2:
             semg = self.pp_semseg2(semseg)
-
-        wngy = self.dwt.predict(img[0,...], semg[0,...], tta=tta_wngy) 
 
         instg = watershed_cut(wngy[0, ...], semg[0, ...], 
                               threshold=cut_threshold, 
